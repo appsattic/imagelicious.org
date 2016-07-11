@@ -9,12 +9,13 @@ html:
 	cp src/index.html public/
 
 browserify:
-	browserify src/js/app.js --transform [ babelify --presets [ es2015 react ] ] --transform browserify-shim | uglifyjs -c > public/app.min.js
+	browserify src/js/imagelicious.js --transform [ babelify --presets [ es2015 react ] ] --transform browserify-shim --outfile public/imagelicious.js
+	uglifyjs --output public/imagelicious.min.js public/imagelicious.js
 
 server:
 	firebase serve
 
-deploy:
+deploy: build
 	firebase deploy
 
 clean:

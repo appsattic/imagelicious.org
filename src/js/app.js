@@ -2,64 +2,94 @@
 
 // global
 var React = require('react')
-var ReactDOM = require('react-dom')
 
 // local
 var firebase = require('./firebase.js')
-var store = require('./store.js')
 
 // --------------------------------------------------------------------------------------------------------------------
-// events
-
-firebase.auth().onAuthStateChanged(function(currentUser) {
-  console.log('onAuthStateChanged() - currentUser:', currentUser)
-
-  if ( currentUser ) {
-    var thisUser = {
-      uid           : currentUser.uid,
-      displayName   : currentUser.displayName || currentUser.email.split('@')[0],
-      email         : currentUser.email,
-      emailVerified : currentUser.emailVerified,
-      isAnonymous   : currentUser.isAnonymous,
-      photoURL      : currentUser.photoURL,
-      providerId    : currentUser.providerData[0].providerId,
-    }
-    console.log('onAuthStateChanged() - thisUser:', thisUser)
-    store.setUser(thisUser)
-  }
-  else {
-    store.setUser(null)
-  }
-  render()
-})
-
-// See: http://jamesknelson.com/routing-with-raw-react/
-function onHashChange() {
-  // take the initial '#' off the window.location.hash
-  var hash = window.location.hash.substr(1)
-  console.log('onHashChange() - hash: [' + hash + ']')
-  store.setHash(hash)
-  render()
-}
-
-// when there is a hashChange, call our function
-window.addEventListener('hashchange', onHashChange, false)
-
-// --------------------------------------------------------------------------------------------------------------------
-// components
 
 var App = React.createClass({
+  propTypes: {
+    store : React.PropTypes.object.isRequired,
+  },
+  signIn(ev) {
+    ev.preventDefault()
+    var store = this.props.store
+
+    var provider = new firebase.auth.GoogleAuthProvider()
+    firebase.auth().signInWithRedirect(provider).then(function(result) {
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      // var token = result.credential.accessToken
+      // The signed-in user info.
+      // var user = result.user
+      // ...
+      console.log('signIn() - result:', result)
+    }).catch(function(error) {
+      // Handle Errors here.
+      // var errorCode = error.code
+      // var errorMessage = error.message
+      // The email of the user's account used.
+      // var email = error.email
+      // The firebase.auth.AuthCredential type that was used.
+      // var credential = error.credential
+
+      // add this error
+      store.addError(error.message)
+    })
+  },
+  signOut(ev) {
+    ev.preventDefault()
+    var store = this.props.store
+
+    firebase.auth().signOut().then(function() {
+      // refresh the page so all data is emptied
+      window.location = ''
+    }, function(error) {
+      store.addError(error.message)
+    })
+  },
   render() {
-    return <p>Hello, World!</p>
+    var store = this.props.store
+    var user = store.getUser()
+    var msgs = store.getMsgs()
+
+    return (
+      <div>
+        {
+          msgs.length
+          ?
+          <ul>
+            {
+              msgs.map((msg, i) => {
+                return <li key={ i }>{ msg }</li>
+              })
+            }
+          </ul>
+          :
+          <div />
+        }
+        {
+          user
+          ?
+          <p>
+            Hello, { user.displayName }!
+            { ' | ' }
+            { '<' + user.email + '>' }
+            { ' | ' }
+            <a href="#" onClick={ this.signOut }>Sign Out</a>
+          </p>
+          :
+          <p>
+            <a href="#" onClick={ this.signIn }>Sign in with Google</a>.
+          </p>
+        }
+      </div>
+    )
   }
 })
 
-function render() {
-  ReactDOM.render(React.createElement(App, { store : store }), document.getElementById('app'))
-}
+// --------------------------------------------------------------------------------------------------------------------
 
-// on startup, update the hash and render the app
-onHashChange()
-render()
+module.exports = App
 
 // --------------------------------------------------------------------------------------------------------------------
