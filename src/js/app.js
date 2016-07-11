@@ -8,6 +8,29 @@ var firebase = require('./firebase.js')
 
 // --------------------------------------------------------------------------------------------------------------------
 
+var MsgList = React.createClass({
+  render() {
+    var msgs = this.props.msgs
+    return (
+      <div>
+        {
+          msgs.length
+          ?
+          <ul>
+            {
+              msgs.map((msg, i) => {
+                return <li key={ i }>{ msg }</li>
+              })
+            }
+          </ul>
+          :
+          null
+        }
+      </div>
+    )
+  }
+})
+
 var App = React.createClass({
   propTypes: {
     store : React.PropTypes.object.isRequired,
@@ -53,36 +76,37 @@ var App = React.createClass({
     var user = store.getUser()
     var msgs = store.getMsgs()
 
+    // status line
+    var status
+    if ( user === null ) {
+      // currently unknown
+      status = <p>Loading...</p>
+    }
+    else if ( user === false ) {
+      // not logged in
+      status = (
+        <p>
+          <a href="#" onClick={ this.signIn }>Sign in with Google</a>.
+        </p>
+      )
+    }
+    else {
+      // logged in
+      status = (
+        <p>
+          Hello, { user.displayName }!
+          { ' | ' }
+          { '<' + user.email + '>' }
+          { ' | ' }
+          <a href="#" onClick={ this.signOut }>Sign Out</a>
+        </p>
+      )
+    }
+
     return (
       <div>
-        {
-          msgs.length
-          ?
-          <ul>
-            {
-              msgs.map((msg, i) => {
-                return <li key={ i }>{ msg }</li>
-              })
-            }
-          </ul>
-          :
-          <div />
-        }
-        {
-          user
-          ?
-          <p>
-            Hello, { user.displayName }!
-            { ' | ' }
-            { '<' + user.email + '>' }
-            { ' | ' }
-            <a href="#" onClick={ this.signOut }>Sign Out</a>
-          </p>
-          :
-          <p>
-            <a href="#" onClick={ this.signIn }>Sign in with Google</a>.
-          </p>
-        }
+        <MsgList msgs={ msgs } />
+        { status }
       </div>
     )
   }

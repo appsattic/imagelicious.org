@@ -8,6 +8,7 @@ var store = {
   listeners : [],
 
   setUser : function setUser(user) {
+    console.log('Setting user:', user)
     this.user = user
     this.notify()
   },
