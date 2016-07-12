@@ -18,5 +18,14 @@ server:
 deploy: build
 	firebase deploy
 
+deploy-hosting: build
+	firebase deploy --only hosting
+
+deploy-database: build
+	firebase deploy --only database
+
+deploy-storage: build
+	firebase deploy --only storage
+
 clean:
 	rm -rf public
