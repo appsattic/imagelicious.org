@@ -4,6 +4,9 @@
 var React = require('react')
 var ReactDOM = require('react-dom')
 
+// npm
+var HashiRouter = require('hashirouter')
+
 // local
 var firebase = require('./firebase.js')
 var store = require('./store.js')
@@ -43,6 +46,44 @@ function onHashChange() {
   render()
 }
 
+var router = new HashiRouter({
+  def : 'app',
+  debug : true,
+})
+router.add('app', (imageId) => {
+  console.log('now showing the app')
+  store.setPage('app')
+  store.setArgs({}) // no args
+})
+router.add('image/:imageId', (imageId) => {
+  console.log('got a new image ' + imageId)
+  store.setPage('image')
+  store.setArgs({
+    imageId : imageId,
+  })
+})
+router.setNotFound((hash) => {
+  console.log('Unknown hash=' + hash)
+  window.location.hash = 'app'
+  // store.setPage('image')
+  // store.setArgs([])
+})
+
+function onHashChange() {
+  var hash = window.location.hash
+
+  // calls a function you provided OR returns a newHash (not both)
+  console.log('onHashChange() - calling router.route()')
+  var newHash = router.route(hash.substr(1))
+  if ( newHash ) {
+    console.log('onHashChange() - got newHash=' + newHash)
+    window.location.hash = newHash
+    return
+  }
+
+  store.setHash(hash)
+}
+
 // when there is a hashChange, call our function
 window.addEventListener('hashchange', onHashChange, false)
 
@@ -61,6 +102,5 @@ store.listen(render)
 
 // on startup, update the hash and render the app
 onHashChange()
-render()
 
 // --------------------------------------------------------------------------------------------------------------------

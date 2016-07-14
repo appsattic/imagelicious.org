@@ -12,6 +12,9 @@ var firebase = require('./firebase.js')
 // --------------------------------------------------------------------------------------------------------------------
 
 var MsgList = React.createClass({
+  propTypes: {
+    msgs : React.PropTypes.array.isRequired,
+  },
   render() {
     var msgs = this.props.msgs
     return (
@@ -36,6 +39,9 @@ var MsgList = React.createClass({
 
 // From : https://firebase.google.com/docs/storage/web/upload-files
 var ImageUploadForm = React.createClass({
+  propTypes: {
+    store : React.PropTypes.object.isRequired,
+  },
   onChange(ev) {
     ev.preventDefault()
 
@@ -143,23 +149,25 @@ var ImageUploadForm = React.createClass({
   }
 })
 
-var App = React.createClass({
+var Status = React.createClass({
   propTypes: {
     store : React.PropTypes.object.isRequired,
   },
   signIn(ev) {
     ev.preventDefault()
+
     var store = this.props.store
 
     var provider = new firebase.auth.GoogleAuthProvider()
-    firebase.auth().signInWithRedirect(provider).then(function(result) {
+    var p = firebase.auth().signInWithRedirect(provider)
+    p.then((result) => {
       // This gives you a Google Access Token. You can use it to access the Google API.
       // var token = result.credential.accessToken
       // The signed-in user info.
       // var user = result.user
       // ...
       console.log('signIn() - result:', result)
-    }).catch(function(error) {
+    }).catch((err) => {
       // Handle Errors here.
       // var errorCode = error.code
       // var errorMessage = error.message
@@ -168,60 +176,112 @@ var App = React.createClass({
       // The firebase.auth.AuthCredential type that was used.
       // var credential = error.credential
 
-      // add this error
-      store.addError(error.message)
+      // add this err to the messages
+      store.addError(err.message)
     })
   },
   signOut(ev) {
     ev.preventDefault()
+
     var store = this.props.store
 
-    firebase.auth().signOut().then(function() {
-      // refresh the page so all data is emptied
-      window.location = ''
-    }, function(error) {
-      store.addError(error.message)
-    })
+    var p = firebase.auth().signOut()
+    p.then(
+      () => {
+        // refresh the page so all data is emptied
+        window.location = ''
+      },
+      (err) => {
+        store.addError(err.message)
+      }
+    )
   },
   render() {
     var store = this.props.store
     var user = store.getUser()
-    var msgs = store.getMsgs()
 
-    // status line
-    var status
+    // status unknown
     if ( user === null ) {
-      // currently unknown
-      status = <p>Loading...</p>
+      return <p>Loading...</p>
     }
-    else if ( user === false ) {
-      // not logged in
-      status = (
+
+    // not logged in
+    if ( user === false ) {
+      return (
         <p>
           <a href="#" onClick={ this.signIn }>Sign in with Google</a>.
         </p>
       )
     }
-    else {
-      // logged in
-      status = (
-        <p>
-          Hello, { user.displayName }!
-          { ' | ' }
-          { '<' + user.email + '>' }
-          { ' | ' }
-          <a href="#" onClick={ this.signOut }>Sign Out</a>
-        </p>
+
+    // yes, logged in
+    return (
+      <p>
+        Hello, { user.displayName }!
+        { ' | ' }
+        { '<' + user.email + '>' }
+        { ' | ' }
+        <a href="#" onClick={ this.signOut }>Sign Out</a>
+      </p>
+    )
+  }
+})
+
+var Page = React.createClass({
+  propTypes: {
+    store : React.PropTypes.object.isRequired,
+  },
+  render() {
+    var store = this.props.store
+    var user = store.getUser()
+
+    console.log('Page.render(): hash=' + store.getHash())
+
+    // render a logged in page
+    var page = store.getPage()
+    var args = store.getArgs()
+
+    console.log('page=' + page)
+
+    if ( page === 'app' ) {
+      if ( !user ) {
+        return <div />
+      }
+
+      // render the upload form
+      return (
+        <div>
+          { user ? <ImageUploadForm store={ store } /> : null }
+        </div>
+      )
+    }
+
+    if ( page === 'image' ) {
+      return (
+        <div>
+          <p>This is an image, right here: imageId={ args.imageId }.</p>
+        </div>
       )
     }
 
     return (
+      <div>404 - Not Found</div>
+    )
+  }
+})
+
+var App = React.createClass({
+  propTypes: {
+    store : React.PropTypes.object.isRequired,
+  },
+  render() {
+    var store = this.props.store
+
+    return (
       <div>
-        <MsgList msgs={ msgs } />
-        { status }
-        {
-          user ? <ImageUploadForm store={ store } /> : null
-        }
+        <MsgList msgs={ store.getMsgs() } />
+        <Status store={ store } />
+        <Page store={ store } />
       </div>
     )
   }
