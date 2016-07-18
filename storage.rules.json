@@ -1,51 +1,32 @@
 // --------------------------------------------------------------------------------------------------------------------
 //
+// From: https://firebase.google.com/docs/storage/security
+//
 // All files are saved in
 //
-// * /user/<userId>/<imageId>.ext
+// * /img/{imageId} - where {imageId} is a `ref.push().key` from Firebase Storage
 //
 // --------------------------------------------------------------------------------------------------------------------
 
-// The default rules:
-//
-// ```json
-// service firebase.storage {
-//   match /b/imagelicious-cc412.appspot.com/o {
-//     match /{allPaths=**} {
-//       allow read, write: if request.auth != null;
-//     }
-//   }
-// }
-// ```
-
 service firebase.storage {
   match /b/imagelicious-cc412.appspot.com/o {
-    match /user/{userId}/{imageId}/{filename} {
+    match /img/{imageId} {
       // read
       allow read;
-
-      // user/6P82iuW2YEbrhyuheyzoLAqEQ9C3/TsKNcxzmHRDjYjyg/2015-08-06-161036_1034x295_scrot.png
-      //      6P82iuW2YEbrhyuheyzoLAqEQ9C3
 
       // write
       //
       // Allow write files to this path, subject to the constraints:
       //
       // 1) A user is logged in
-      // 2) Logged in user is equal to the `/<userId>/` part of the path.
-      // 3) File is less than 10MB
-      // 4) Content type is an image
-      // 5) imageId is 16 chars
-      // 6) File name (stored in imageId wildcard variable) is greater than zero
-      // 7) File name (stored in imageId wildcard variable) is less than 128 characters
-      // 8) No file currently exists here
+      // 2) File is less than 10MB
+      // 3) Content type is an image
+      // 4) imageId is 20 chars (same as a database `ref.push().key`
+      // 5) ToDo: No file currently exists here
       allow write: if request.auth != null
-        && isCurrentUser(userId)
         && lessThanMegabytes(10)
         && isImage()
-        && imageId.size() == 16
-        && filename.size() > 0
-        && filename.size() <= 128
+        && imageId.size() == 20;
     }
   }
 }

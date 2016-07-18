@@ -1,4 +1,4 @@
-PATH := node_modules/.bin:$(PATH)
+PATH := node_modules/.bin:${PATH}
 
 build: clean public html browserify
 
@@ -6,7 +6,7 @@ public:
 	mkdir -p public
 
 html:
-	cp src/index.html public/
+	m4 --prefix-builtins --define=__MIN__=${MIN} src/index.html > public/index.html
 
 browserify:
 	browserify src/js/imagelicious.js --outfile public/imagelicious.js
@@ -21,10 +21,10 @@ deploy: build
 deploy-hosting: build
 	firebase deploy --only hosting
 
-deploy-database: build
+deploy-database:
 	firebase deploy --only database
 
-deploy-storage: build
+deploy-storage:
 	firebase deploy --only storage
 
 clean:

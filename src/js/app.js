@@ -3,9 +3,6 @@
 // global
 var React = require('react')
 
-// npm
-var zid = require('zid')
-
 // local
 var firebase = require('./firebase.js')
 
@@ -66,27 +63,28 @@ var ImageUploadForm = React.createClass({
       return;
     }
 
-    // firebase auth
+    // firebase.auth() so we can get the currentUser
     var auth = firebase.auth()
     var currentUser = auth.currentUser
     console.log('currentUser:', currentUser)
 
-    // firebase storage -> /user/<uid>/<id>/<file.filename>
+    // firstly, get a new database ref
+    var ref = firebase.database().ref().child('user/' + currentUser.uid)
+    var ref = firebase.database().ref()
+
+    var dbRef = ref.child('user/' + currentUser.uid).push()
+    var pubRef = ref.child('img/' + dbRef.key)
+    console.log('dbRef.key=' + dbRef.key)
+
+    // firebase storage -> /img/<dbRef.key>
     var storage = firebase.storage()
-    var id = zid(16)
-    console.log('id:', id)
-    var path = [
-      'user',
-      auth.currentUser.uid,
-      id,
-      file.name,
-    ].join('/')
-    console.log('path:', path)
-    var fileRef = storage.ref().child(path)
+    console.log('dbRef.key:', dbRef.key)
+    var fileRef = storage.ref().child('img/' + dbRef.key)
     console.log('ref path:', fileRef.fullPath)
 
+    // file metadata : https://firebase.google.com/docs/storage/web/file-metadata
     var uploadTask = fileRef.put(file, {
-      'contentType' : file.type
+      name : file.name,
     })
 
     // Register three observers:
@@ -133,12 +131,34 @@ var ImageUploadForm = React.createClass({
       },
       function() {
         console.log('uploadTask.completed')
-        // Handle successful uploads on complete
-        // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-        var downloadUrl = uploadTask.snapshot.downloadURL
-        console.log('File available at', downloadUrl)
-        // now we can save this image to the datastore
-        // ToDo: ...!
+        // successful upload - now save to datastore
+
+        console.log('File available at', uploadTask.snapshot.downloadURL)
+
+        // firstly, get the metadata from the file back
+        fileRef.getMetadata().then(function(metadata) {
+          // Metadata now contains the metadata for 'images/forest.jpg'
+          console.log('file metadata:', metadata)
+
+          dbRef.set({
+            displayName : currentUser.displayName,
+            downloadUrl : uploadTask.snapshot.downloadURL,
+            filename    : file.name,
+            size        : metadata.size,
+            contentType : metadata.contentType,
+          })
+
+          pubRef.set({
+            displayName : currentUser.displayName,
+            downloadUrl : uploadTask.snapshot.downloadURL,
+            filename    : file.name,
+            size        : metadata.size,
+            contentType : metadata.contentType,
+          })
+
+        }).catch(function(error) {
+          console.log('error getting file metadata:', err)
+        });
       }
     )
   },

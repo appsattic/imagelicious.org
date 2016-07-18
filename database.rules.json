@@ -1,4 +1,8 @@
 {
+  // Note:
+  //
+  // * read  - only needs one ".read" to be true
+  // * write - only needs one ".write" to be true
   "rules": {
     ".read": "auth != null",
     ".write": "auth != null"
