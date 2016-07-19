@@ -1,5 +1,9 @@
 // --------------------------------------------------------------------------------------------------------------------
 
+"use strict"
+
+// --------------------------------------------------------------------------------------------------------------------
+
 // only a single instance of the store
 var store = {
   hash : null,
@@ -7,6 +11,7 @@ var store = {
   args : {},
   user : null,
   msgs : [],
+  imgs : {},
   listeners : [],
 
   setUser : function setUser(user) {
@@ -54,6 +59,34 @@ var store = {
     return this.msgs
   },
 
+  imgAdded : function imgAdded(data) {
+    console.log('imgAdded:', data)
+    // console.log('imgAdded: key=' + data.key)
+    // console.log('imgAdded: val=', data.val())
+    var key = data.key
+    var val = data.val()
+    this.imgs[key] = val
+    this.notify()
+  },
+
+  imgChanged : function imgChanged(data) {
+    console.log('imgChanged:', data.key)
+    var key = data.key
+    var val = data.val()
+    this.imgs[key] = val
+    this.notify()
+  },
+
+  imgRemoved : function imgRemoved(data) {
+    console.log('imgRemoved:', data.key)
+    // this.imgs.push(img)
+    this.notify()
+  },
+
+  getImgs : function getImgs() {
+    return this.imgs
+  },
+
   listen: function listen(fn) {
     this.listeners.push(fn)
   },
@@ -64,8 +97,18 @@ var store = {
     })
   },
 
-  extract : function extract() {
+  extract: function extract() {
     return JSON.parse(JSON.stringify(this))
+  },
+
+  reset: function() {
+    this.hash = null
+    this.page = null
+    this.args = {}
+    this.user = null
+    this.msgs = []
+    this.imgs = {}
+    this.listeners = []
   },
 }
 

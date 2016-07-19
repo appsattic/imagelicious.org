@@ -18,6 +18,8 @@ var App = require('./app.js')
 firebase.auth().onAuthStateChanged(function(currentUser) {
   console.log('onAuthStateChanged() - currentUser:', currentUser)
 
+  var thisUser;
+
   if ( currentUser ) {
     var thisUser = {
       uid           : currentUser.uid,
@@ -30,8 +32,27 @@ firebase.auth().onAuthStateChanged(function(currentUser) {
     }
     console.log('onAuthStateChanged() - thisUser:', thisUser)
     store.setUser(thisUser)
+
+    // now that we have a user, let's listen for child events on 'user/<uid>/img/*'
+    var imgRef = firebase.database().ref('user/' + currentUser.uid)
+    imgRef.on('child_added', function(data) {
+      store.imgAdded(data)
+    })
+    imgRef.on('child_changed', function(data) {
+      store.imgChanged(data)
+    })
+    imgRef.on('child_removed', function(data) {
+      store.imgRemoved(data)
+    })
   }
   else {
+    console.log('WARNING')
+    // turn off notifications if the user was logged in
+    var thisUser = store.getUser()
+    if ( thisUser ) {
+      firebase.database().ref('user/' + thisUser.uid).off()
+    }
+    store.reset(false)
     store.setUser(false)
   }
   render()

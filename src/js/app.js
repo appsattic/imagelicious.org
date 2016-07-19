@@ -236,13 +236,29 @@ var Status = React.createClass({
 
     // yes, logged in
     return (
-      <p>
-        Hello, { user.displayName }!
-        { ' | ' }
-        { '<' + user.email + '>' }
-        { ' | ' }
-        <a href="#" onClick={ this.signOut }>Sign Out</a>
-      </p>
+      <section className="section">
+        <div className="container">
+          Hello, { user.displayName }!
+          { ' | ' }
+          { '<' + user.email + '>' }
+          { ' | ' }
+          <a href="#" onClick={ this.signOut }>Sign Out</a>
+        </div>
+      </section>
+    )
+  }
+})
+
+var Image = React.createClass({
+  render() {
+    return (
+      <article className="tile is-child box">
+        <figure className="image is-4by3">
+          <img src={ this.props.downloadUrl } />
+        </figure>
+        <p style={{ fontSize: '18px'}} className="title">{ this.props.filename }</p>
+        <p style={{ fontSize: '12px'}} className="subtitle">{ this.props.contentType }</p>
+      </article>
     )
   }
 })
@@ -268,10 +284,28 @@ var Page = React.createClass({
         return <div />
       }
 
-      // render the upload form
+      // show the logged in user all of their images
+      var imgs = store.getImgs()
+      var imgKeys = Object.keys(imgs)
+      let columns = imgKeys.sort().reverse().map(function(key) {
+        return (
+          <div key={ key } className="column is-one-quarter">
+            <Image
+              filename={ imgs[key].filename }
+              contentType={ imgs[key].contentType }
+              downloadUrl={ imgs[key].downloadUrl }
+            />
+          </div>
+        )
+      })
+
+      // render the upload form and their images
       return (
-        <div>
+        <div className="container">
           { user ? <ImageUploadForm store={ store } /> : null }
+          <div className="columns is-multiline is-mobile">
+            { columns }
+          </div>
         </div>
       )
     }
@@ -290,6 +324,92 @@ var Page = React.createClass({
   }
 })
 
+var TopBar = React.createClass({
+  render() {
+    return (
+      <section className="hero is-primary is-medium">
+        <div className="hero-head">
+          <header className="nav">
+            <div className="container">
+              <div className="nav-left">
+                <a className="nav-item">
+                  <img src="images/bulma-white.png" alt="Logo" />
+                </a>
+              </div>
+              <span className="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+              </span>
+              <div className="nav-right nav-menu">
+                <a className="nav-item is-active">
+                  Home
+                </a>
+                <a className="nav-item">
+                  Examples
+                </a>
+                <a className="nav-item">
+                  Documentation
+                </a>
+                <span className="nav-item">
+                  <a className="button is-primary is-inverted">
+                    <span className="icon">
+                      <i className="fa fa-github"></i>
+                    </span>
+                    <span>Download</span>
+                  </a>
+                </span>
+              </div>
+            </div>
+          </header>
+        </div>
+      </section>
+    )
+  },
+})
+
+var Hero = React.createClass({
+  render() {
+    return (
+      <section className="hero is-primary">
+        <div className="hero-body">
+          <div className="container">
+            <h1 className="title">
+              imagelicious.org
+            </h1>
+            <h2 className="subtitle">
+              Photo Gallery, on Firebase
+            </h2>
+          </div>
+        </div>
+      </section>
+    )
+  }
+})
+
+var Footer = React.createClass({
+  render() {
+    return (
+      <footer className="footer">
+        <div className="container">
+          <div className="content has-text-centered">
+            <p>
+              <strong>imagelicious.org</strong> by <a href="https://chilts.org/">Andrew Chilton</a>, runs on <a href="https://firebase.google.com/">Firebase</a>.
+              <br />
+              The source code is licensed <a href="http://example.com/">ISC</a>.
+            </p>
+            <p>
+              <a className="icon" href="https://github.com/chilts/imagelicious.org">
+                <i className="fa fa-github"></i>
+              </a>
+            </p>
+          </div>
+        </div>
+      </footer>
+    )
+  }
+})
+
 var App = React.createClass({
   propTypes: {
     store : React.PropTypes.object.isRequired,
@@ -299,9 +419,12 @@ var App = React.createClass({
 
     return (
       <div>
+        <TopBar />
+        <Hero />
         <MsgList msgs={ store.getMsgs() } />
         <Status store={ store } />
         <Page store={ store } />
+        <Footer />
       </div>
     )
   }
