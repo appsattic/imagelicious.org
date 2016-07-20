@@ -60,13 +60,11 @@ var store = {
   },
 
   imgChanged : function imgChanged(key, val) {
-    console.log('imgChanged:', key)
     this.imgs[key] = val
     this.notify()
   },
 
   imgRemoved : function imgRemoved(key, val) {
-    console.log('imgRemoved:', key)
     delete this.imgs[key]
     this.notify()
   },

@@ -2,8 +2,8 @@
   "rules": {
     "user": {
       "$uid": {
+        ".read": "auth.uid === $uid",
         "$imgId" : {
-          ".read": "auth.uid === $uid",
           ".write" : "auth.uid === $uid && !data.exists()",
           ".validate": "newData.hasChildren(['filename', 'size', 'contentType', 'downloadUrl'])",
           "filename": {
@@ -27,12 +27,9 @@
       "$imgId": {
         ".read": true,
         ".write": "!data.exists()",
-        ".validate": "newData.hasChildren(['uid', 'displayName'])",
+        ".validate": "newData.hasChildren(['uid'])",
         "uid": {
-          ".validate": "newData.isString() && newData.val() == auth.uid"
-        },
-        "displayName": {
-          ".validate": "newData.isString() && newData.val().length > 0"
+          ".validate": "newData.isString() && newData.val() === auth.uid"
         }
       }
     }

@@ -33,8 +33,8 @@ firebase.auth().onAuthStateChanged(function(currentUser) {
     console.log('onAuthStateChanged() - thisUser:', thisUser)
     store.setUser(thisUser)
 
-    // now that we have a user, let's listen for child events on 'user/<uid>/img/*'
-    var imgRef = firebase.database().ref('user/' + currentUser.uid)
+    // now that we have a user, let's listen for child events on '/user/<uid>/img/*'
+    var imgRef = firebase.database().ref('/user/' + currentUser.uid)
     imgRef.on('child_added', function(data) {
       store.imgChanged(data.key, data.val())
     })
@@ -46,7 +46,6 @@ firebase.auth().onAuthStateChanged(function(currentUser) {
     })
   }
   else {
-    console.log('WARNING')
     // turn off notifications if the user was logged in
     var thisUser = store.getUser()
     if ( thisUser ) {
@@ -72,19 +71,16 @@ var router = new HashiRouter({
   debug : true,
 })
 router.add('app', (imageId) => {
-  console.log('now showing the app')
   store.setPage('app')
   store.setArgs({}) // no args
 })
 router.add('image/:imageId', (imageId) => {
-  console.log('got a new image ' + imageId)
   store.setPage('image')
   store.setArgs({
     imageId : imageId,
   })
 })
 router.setNotFound((hash) => {
-  console.log('Unknown hash=' + hash)
   window.location.hash = 'app'
   // store.setPage('image')
   // store.setArgs([])

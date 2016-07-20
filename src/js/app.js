@@ -66,23 +66,18 @@ var ImageUploadForm = React.createClass({
     // firebase.auth() so we can get the currentUser
     var auth = firebase.auth()
     var currentUser = auth.currentUser
-    console.log('currentUser:', currentUser)
 
     // firstly, get a new database ref
-    var ref = firebase.database().ref().child('user/' + currentUser.uid)
-    var ref = firebase.database().ref()
+    var dbRef = firebase.database().ref()
+    var userRef = dbRef.child('user/' + currentUser.uid)
+    var imgRef = userRef.push()
+    var pubRef = dbRef.child('img/' + imgRef.key)
 
-    var dbRef = ref.child('user/' + currentUser.uid).push()
-    var pubRef = ref.child('img/' + dbRef.key)
-    console.log('dbRef.key=' + dbRef.key)
-
-    // firebase storage -> /img/<dbRef.key>
+    // firebase storage -> /img/<imgRef.key>
     var storage = firebase.storage()
-    console.log('dbRef.key:', dbRef.key)
-    var fileRef = storage.ref().child('img/' + dbRef.key)
-    console.log('ref path:', fileRef.fullPath)
+    var fileRef = storage.ref().child('img/' + imgRef.key)
 
-    store.imgChanged(dbRef.key, { state : 'uploading', progress : 0 })
+    store.imgChanged(imgRef.key, { state : 'uploading', progress : 0 })
 
     // file metadata : https://firebase.google.com/docs/storage/web/file-metadata
     var uploadTask = fileRef.put(file, {
@@ -98,21 +93,20 @@ var ImageUploadForm = React.createClass({
       function(snapshot) {
         // Observe state change events such as progress, pause, and resume
         // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded.
-        var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log('Upload is ' + progress + '% done');
-        store.imgChanged(dbRef.key, { state : 'uploading', progress : Math.floor(progress) })
+        var progress = Math.floor((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+
         switch (snapshot.state) {
-        case firebase.storage.TaskState.PAUSED: // or 'paused'
-          console.log('Upload is paused');
-          break;
         case firebase.storage.TaskState.RUNNING: // or 'running'
-          console.log('Upload is running');
+          store.imgChanged(imgRef.key, { state : 'uploading', progress : progress })
+          break;
+        case firebase.storage.TaskState.PAUSED: // or 'paused'
+          store.imgChanged(imgRef.key, { state : 'paused', progress : progress })
           break;
         }
       },
       function(err) {
-        // Handle unsuccessful uploads
-        console.log('uploadTask.err:', err)
+        // something went wrong with the upload
+        store.imgChanged(imgRef.key, { state : 'error', msg : '' + err })
 
         switch (err.code) {
         case 'storage/unauthorized':
@@ -133,33 +127,31 @@ var ImageUploadForm = React.createClass({
 
       },
       function() {
-        console.log('uploadTask.completed')
-        // successful upload - now save to datastore
+        // file saved - now save the metadata
 
-        console.log('File available at', uploadTask.snapshot.downloadURL)
+        // We can cheat here and start showing the image already, since the upload has finished - no need to wait for
+        // the 'database' imgRef to save and then be notified back.
+        store.imgChanged(imgRef.key, { state : 'saving-metadata', downloadUrl : uploadTask.snapshot.downloadURL })
 
         // firstly, get the metadata from the file back
         fileRef.getMetadata().then(function(metadata) {
-          // Metadata now contains the metadata for 'images/forest.jpg'
           console.log('file metadata:', metadata)
 
-          dbRef.set({
+          imgRef.set({
             downloadUrl : uploadTask.snapshot.downloadURL,
             filename    : file.name,
             size        : metadata.size,
             contentType : metadata.contentType,
+          }).catch(function(err) {
+            console.log('imgRef.set: err:', err)
           })
 
           pubRef.set({
             // include `uid` so we can check auth in the database (otherwise anyone could put stuff here)
-            uid         : currentUser.uid,
-            displayName : currentUser.displayName,
-            // We should get all of the things below from the image itself (in Firebase Storage), rather than
-            // from here, since this (esp. `downloadUrl`) could be an attack vector.
-            // downloadUrl : uploadTask.snapshot.downloadURL,
-            // filename    : file.name,
-            // size        : metadata.size,
-            // contentType : metadata.contentType,
+            uid : currentUser.uid,
+            // No need to save anything else, since we can get it from the file metadata when loading the image.
+          }).catch(function(err) {
+            console.log('pubRef.set: err:', err)
           })
 
         }).catch(function(error) {
@@ -258,11 +250,48 @@ var Status = React.createClass({
 var Image = React.createClass({
   render() {
     var img = this.props.img
+
     if ( img.state === 'uploading' ) {
       return (
         <article className="tile is-child box">
           <p style={{ fontSize: '18px'}} className="title">Uploading...</p>
           <p style={{ fontSize: '12px'}} className="subtitle">Progress: { img.progress }%</p>
+          <progress max="100" value={ img.progress } style={ { width: "100%" } } />
+        </article>
+      )
+    }
+
+    if ( img.state === 'paused' ) {
+      return (
+        <article className="tile is-child box">
+          <p style={{ fontSize: '18px'}} className="title">Paused</p>
+          <p style={{ fontSize: '12px'}} className="subtitle">Progress: { img.progress }%</p>
+          <progress max="100" value={ img.progress } style={ { width: "100%" } } />
+        </article>
+      )
+    }
+
+    if ( img.state === 'error' ) {
+      return (
+        <article className="tile is-child box">
+          <p style={{ fontSize: '18px'}} className="title">Error</p>
+          <p style={{ fontSize: '12px'}} className="subtitle">{ img.msg }</p>
+        </article>
+      )
+    }
+
+    if ( img.state === 'saving-metadata' ) {
+      return (
+        <article className="tile is-child box">
+          {
+            img.downloadUrl
+            &&
+            <figure className="image is-4by3">
+              <img src={ img.downloadUrl } />
+            </figure>
+          }
+          <p style={{ fontSize: '18px'}} className="title">Saving metadata...</p>
+          <p style={{ fontSize: '12px'}} className="subtitle">Progress: Complete</p>
         </article>
       )
     }
@@ -270,10 +299,10 @@ var Image = React.createClass({
     return (
       <article className="tile is-child box">
         <figure className="image is-4by3">
-          <img src={ this.props.downloadUrl } />
+          <img src={ img.downloadUrl } />
         </figure>
-        <p style={{ fontSize: '18px'}} className="title">{ this.props.filename }</p>
-        <p style={{ fontSize: '12px'}} className="subtitle">{ this.props.contentType }</p>
+        <p style={{ fontSize: '18px'}} className="title">{ img.filename }</p>
+        <p style={{ fontSize: '12px'}} className="subtitle">{ img.contentType }</p>
       </article>
     )
   }
@@ -369,11 +398,11 @@ var TopBar = React.createClass({
                   Documentation
                 </a>
                 <span className="nav-item">
-                  <a className="button is-primary is-inverted">
+                  <a href="https://github.com/appsattic/imagelicious.org" className="button is-primary is-inverted">
                     <span className="icon">
                       <i className="fa fa-github"></i>
                     </span>
-                    <span>Download</span>
+                    <span>Source Code</span>
                   </a>
                 </span>
               </div>
@@ -413,7 +442,7 @@ var Footer = React.createClass({
             <p>
               <strong>imagelicious.org</strong> by <a href="https://chilts.org/">Andrew Chilton</a>, runs on <a href="https://firebase.google.com/">Firebase</a>.
               <br />
-              The source code is licensed <a href="http://example.com/">ISC</a>.
+              The source code is licensed <a href="https://opensource.org/licenses/ISC">ISC</a>.
             </p>
             <p>
               <a className="icon" href="https://github.com/chilts/imagelicious.org">
