@@ -5,6 +5,7 @@ var React = require('react')
 
 // local
 var firebase = require('./firebase.js')
+var uploadImage = require('./upload-image.js')
 
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -45,7 +46,7 @@ var ImageUploadForm = React.createClass({
     // our own store
     var store = this.props.store
 
-    // Firstly, check the file is okay, 'file' would be something like:
+    // Each 'file' would be something like:
     //
     // {
     //   name             : "filename.png",
@@ -54,115 +55,23 @@ var ImageUploadForm = React.createClass({
     //   size             : 31564,
     //   type             : "image/png",
     // }
-    var file = ev.target.files[0]
-    console.log('file:', file)
 
-    // make sure the file has something in it
-    if ( file.size === 0 ) {
-      store.addMsg('File size must be greater than 0 bytes')
-      return;
+    console.log('Files = ' + ev.target.files.length)
+    for( let i = 0; i < ev.target.files.length; i++ ) {
+      console.log('(' + i + ') file:', ev.target.files[i])
+      uploadImage(store, ev.target.files[i], function(err, res) {
+        if (err) {
+          store.addMsg('' + err)
+          return
+        }
+        // if everything went well, we don't need to do anything
+        console.log('Image uploaded')
+      })
     }
-
-    // firebase.auth() so we can get the currentUser
-    var auth = firebase.auth()
-    var currentUser = auth.currentUser
-
-    // firstly, get a new database ref
-    var dbRef = firebase.database().ref()
-    var userRef = dbRef.child('user/' + currentUser.uid)
-    var imgRef = userRef.push()
-    var pubRef = dbRef.child('img/' + imgRef.key)
-
-    // firebase storage -> /img/<imgRef.key>
-    var storage = firebase.storage()
-    var fileRef = storage.ref().child('img/' + imgRef.key)
-
-    store.imgChanged(imgRef.key, { state : 'uploading', progress : 0 })
-
-    // file metadata : https://firebase.google.com/docs/storage/web/file-metadata
-    var uploadTask = fileRef.put(file, {
-      name : file.name,
-    })
-
-    // Register three observers:
-    // 1. 'state_changed' observer, called any time the state changes
-    // 2. Error observer, called on failure
-    // 3. Completion observer, called on successful completion
-    uploadTask.on(
-      'state_changed',
-      function(snapshot) {
-        // Observe state change events such as progress, pause, and resume
-        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded.
-        var progress = Math.floor((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-
-        switch (snapshot.state) {
-        case firebase.storage.TaskState.RUNNING: // or 'running'
-          store.imgChanged(imgRef.key, { state : 'uploading', progress : progress })
-          break;
-        case firebase.storage.TaskState.PAUSED: // or 'paused'
-          store.imgChanged(imgRef.key, { state : 'paused', progress : progress })
-          break;
-        }
-      },
-      function(err) {
-        // something went wrong with the upload
-        store.imgChanged(imgRef.key, { state : 'error', msg : '' + err })
-
-        switch (err.code) {
-        case 'storage/unauthorized':
-          // User doesn't have permission to access the object
-          console.log('- storage/unauthorized', err)
-          break;
-        case 'storage/canceled':
-          // User canceled the upload
-          console.log('- storage/canceled', err)
-          break;
-        case 'storage/unknown':
-          // Unknown error occurred, inspect error.serverResponse
-          console.log('- storage/unknown', err)
-          break;
-        default:
-          console.log('- Unknown error:', err)
-        }
-
-      },
-      function() {
-        // file saved - now save the metadata
-
-        // We can cheat here and start showing the image already, since the upload has finished - no need to wait for
-        // the 'database' imgRef to save and then be notified back.
-        store.imgChanged(imgRef.key, { state : 'saving-metadata', downloadUrl : uploadTask.snapshot.downloadURL })
-
-        // firstly, get the metadata from the file back
-        fileRef.getMetadata().then(function(metadata) {
-          console.log('file metadata:', metadata)
-
-          imgRef.set({
-            downloadUrl : uploadTask.snapshot.downloadURL,
-            filename    : file.name,
-            size        : metadata.size,
-            contentType : metadata.contentType,
-          }).catch(function(err) {
-            console.log('imgRef.set: err:', err)
-          })
-
-          pubRef.set({
-            // include `uid` so we can check auth in the database (otherwise anyone could put stuff here)
-            uid : currentUser.uid,
-            // No need to save anything else, since we can get it from the file metadata when loading the image.
-          }).catch(function(err) {
-            console.log('pubRef.set: err:', err)
-          })
-
-        }).catch(function(error) {
-          console.log('error getting file metadata:', err)
-        });
-      }
-    )
   },
   render() {
     return (
-      <input type="file" id="file" name="file" onChange={ this.onChange }/>
+      <input type="file" id="file" name="file" onChange={ this.onChange } multiple={ true } />
     )
   }
 })
