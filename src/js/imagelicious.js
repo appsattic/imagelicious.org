@@ -36,13 +36,13 @@ firebase.auth().onAuthStateChanged(function(currentUser) {
     // now that we have a user, let's listen for child events on 'user/<uid>/img/*'
     var imgRef = firebase.database().ref('user/' + currentUser.uid)
     imgRef.on('child_added', function(data) {
-      store.imgAdded(data)
+      store.imgChanged(data.key, data.val())
     })
     imgRef.on('child_changed', function(data) {
-      store.imgChanged(data)
+      store.imgChanged(data.key, data.val())
     })
     imgRef.on('child_removed', function(data) {
-      store.imgRemoved(data)
+      store.imgRemoved(data.key, data.val())
     })
   }
   else {

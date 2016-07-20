@@ -82,6 +82,8 @@ var ImageUploadForm = React.createClass({
     var fileRef = storage.ref().child('img/' + dbRef.key)
     console.log('ref path:', fileRef.fullPath)
 
+    store.imgChanged(dbRef.key, { state : 'uploading', progress : 0 })
+
     // file metadata : https://firebase.google.com/docs/storage/web/file-metadata
     var uploadTask = fileRef.put(file, {
       name : file.name,
@@ -98,6 +100,7 @@ var ImageUploadForm = React.createClass({
         // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded.
         var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         console.log('Upload is ' + progress + '% done');
+        store.imgChanged(dbRef.key, { state : 'uploading', progress : Math.floor(progress) })
         switch (snapshot.state) {
         case firebase.storage.TaskState.PAUSED: // or 'paused'
           console.log('Upload is paused');
@@ -251,6 +254,16 @@ var Status = React.createClass({
 
 var Image = React.createClass({
   render() {
+    var img = this.props.img
+    if ( img.state === 'uploading' ) {
+      return (
+        <article className="tile is-child box">
+          <p style={{ fontSize: '18px'}} className="title">Uploading...</p>
+          <p style={{ fontSize: '12px'}} className="subtitle">Progress: { img.progress }%</p>
+        </article>
+      )
+    }
+
     return (
       <article className="tile is-child box">
         <figure className="image is-4by3">
@@ -291,6 +304,7 @@ var Page = React.createClass({
         return (
           <div key={ key } className="column is-one-quarter">
             <Image
+              img={ imgs[key] }
               filename={ imgs[key].filename }
               contentType={ imgs[key].contentType }
               downloadUrl={ imgs[key].downloadUrl }

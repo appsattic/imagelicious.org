@@ -59,27 +59,15 @@ var store = {
     return this.msgs
   },
 
-  imgAdded : function imgAdded(data) {
-    console.log('imgAdded:', data)
-    // console.log('imgAdded: key=' + data.key)
-    // console.log('imgAdded: val=', data.val())
-    var key = data.key
-    var val = data.val()
+  imgChanged : function imgChanged(key, val) {
+    console.log('imgChanged:', key)
     this.imgs[key] = val
     this.notify()
   },
 
-  imgChanged : function imgChanged(data) {
-    console.log('imgChanged:', data.key)
-    var key = data.key
-    var val = data.val()
-    this.imgs[key] = val
-    this.notify()
-  },
-
-  imgRemoved : function imgRemoved(data) {
-    console.log('imgRemoved:', data.key)
-    // this.imgs.push(img)
+  imgRemoved : function imgRemoved(key, val) {
+    console.log('imgRemoved:', key)
+    delete this.imgs[key]
     this.notify()
   },
 
