@@ -144,7 +144,6 @@ var ImageUploadForm = React.createClass({
           console.log('file metadata:', metadata)
 
           dbRef.set({
-            displayName : currentUser.displayName,
             downloadUrl : uploadTask.snapshot.downloadURL,
             filename    : file.name,
             size        : metadata.size,
@@ -152,11 +151,15 @@ var ImageUploadForm = React.createClass({
           })
 
           pubRef.set({
+            // include `uid` so we can check auth in the database (otherwise anyone could put stuff here)
+            uid         : currentUser.uid,
             displayName : currentUser.displayName,
-            downloadUrl : uploadTask.snapshot.downloadURL,
-            filename    : file.name,
-            size        : metadata.size,
-            contentType : metadata.contentType,
+            // We should get all of the things below from the image itself (in Firebase Storage), rather than
+            // from here, since this (esp. `downloadUrl`) could be an attack vector.
+            // downloadUrl : uploadTask.snapshot.downloadURL,
+            // filename    : file.name,
+            // size        : metadata.size,
+            // contentType : metadata.contentType,
           })
 
         }).catch(function(error) {

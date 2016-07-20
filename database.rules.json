@@ -1,10 +1,40 @@
 {
-  // Note:
-  //
-  // * read  - only needs one ".read" to be true
-  // * write - only needs one ".write" to be true
   "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null"
+    "user": {
+      "$uid": {
+        "$imgId" : {
+          ".read": "auth.uid === $uid",
+          ".write" : "auth.uid === $uid && !data.exists()",
+          ".validate": "newData.hasChildren(['filename', 'size', 'contentType', 'downloadUrl'])",
+          "filename": {
+            ".validate": "newData.isString() && newData.val().length > 0"
+          },
+          "size": {
+            ".validate": "newData.isNumber() && newData.val() > 0"
+          },
+          "contentType": {
+            ".validate": "newData.isString() && newData.val().length > 0"
+          },
+          "downloadUrl": {
+            ".validate": "newData.isString() && newData.val().length > 0"
+          }
+        }
+      }
+    },
+    "img": {
+      // Don't put a ".read" here, since we don't want someone to download everything from `img/` down, but instead
+      // only if they know a valid `$imgId`.
+      "$imgId": {
+        ".read": true,
+        ".write": "!data.exists()",
+        ".validate": "newData.hasChildren(['uid', 'displayName'])",
+        "uid": {
+          ".validate": "newData.isString() && newData.val() == auth.uid"
+        },
+        "displayName": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        }
+      }
+    }
   }
 }
