@@ -1,7 +1,13 @@
 # imagelicious.org #
 
-An image hosting site using Firebase only.
+> Image hosting service, using only Firebase.
 
+By using Firebase Hosting, Database, and Storage, you can scale up without having to worry about servers, security or
+downloads.
+
+## Using the Site ##
+
+To upload images, the user must sign in using their Google Account.
 
 ## Deploying a copy of imagelicious.org ##
 
@@ -50,6 +56,21 @@ make deploy
 This will run the build step, deploy the hosting files, the database rules, and storage rules to your new project.
 
 Voila, the site is now ready.
+
+## Why only Google SignIn ##
+
+Google Account sign in was chosen as the simplest method for this demo site. If you'd like to add more providers, just
+edit your project and add the relevant links. You may have to take care to detect and show an error for users who log
+in with different accounts and have the same email address (or provide for users to link accounts together).
+
+This demo is mainly to show some Firebase features such as image upload in a single page app (SPA) and not to
+demonstrate Firebase's Auth features. To see a full demo of all account capabilities, see my
+[Firebase Starter])(https://fir-starter-bonfire.firebaseapp.com) project.
+
+## About AppsAttic ##
+
+[AppsAttic](http://appsattic.com/) provides solutions for many JavaScripty problems. We use Node.js on the server,
+ReactJS on the client and JavaScript in many other areas. Please get in touch if you'd like to talk to us. :)
 
 ## Author ##
 
