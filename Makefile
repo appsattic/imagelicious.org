@@ -3,14 +3,16 @@ PATH := node_modules/.bin:${PATH}
 build: clean public html browserify
 
 public:
-	mkdir -p public
+	mkdir -p public/img
+	mkdir -p public/js
 
 html:
 	m4 --prefix-builtins --define=__MIN__=${MIN} src/index.html > public/index.html
+	cp src/img/* public/img/
 
 browserify:
-	browserify src/js/imagelicious.js --outfile public/imagelicious.js
-	uglifyjs --output public/imagelicious.min.js public/imagelicious.js
+	browserify src/js/imagelicious.js --outfile public/js/imagelicious.js
+	uglifyjs --output public/js/imagelicious.min.js public/js/imagelicious.js
 
 server:
 	firebase serve
@@ -29,3 +31,5 @@ deploy-storage:
 
 clean:
 	rm -rf public
+
+.PHONY: public

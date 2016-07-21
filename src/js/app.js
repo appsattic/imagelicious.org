@@ -69,9 +69,16 @@ var ImageUploadForm = React.createClass({
       })
     }
   },
+  onClick(ev) {
+    ev.preventDefault()
+    document.getElementById('file').click()
+  },
   render() {
     return (
-      <input type="file" id="file" name="file" onChange={ this.onChange } multiple={ true } />
+      <div>
+        <input type="file" id="file" name="file" onChange={ this.onChange } multiple={ true } style={ { display: 'none' } }/>
+        <button onClick={ this.onClick }>Upload File(s)</button>
+      </div>
     )
   }
 })
@@ -287,8 +294,9 @@ var TopBar = React.createClass({
           <header className="nav">
             <div className="container">
               <div className="nav-left">
-                <a className="nav-item">
-                  <img src="images/bulma-white.png" alt="Logo" />
+                <a className="nav-item" href="/">
+                  <img src="/img/logo-48x36.png" alt="Logo" />
+                  imagelicious.org
                 </a>
               </div>
               <span className="nav-toggle">
@@ -297,7 +305,7 @@ var TopBar = React.createClass({
                 <span></span>
               </span>
               <div className="nav-right nav-menu">
-                <a className="nav-item is-active">
+                <a className="nav-item is-active" href="/">
                   Home
                 </a>
                 <a className="nav-item">
@@ -324,7 +332,12 @@ var TopBar = React.createClass({
 })
 
 var Hero = React.createClass({
+  propTypes: {
+    store : React.PropTypes.object.isRequired,
+  },
   render() {
+    var store = this.props.store
+
     return (
       <section className="hero is-primary">
         <div className="hero-body">
@@ -354,7 +367,7 @@ var Footer = React.createClass({
               The source code is licensed <a href="https://opensource.org/licenses/ISC">ISC</a>.
             </p>
             <p>
-              <a className="icon" href="https://github.com/chilts/imagelicious.org">
+              <a className="icon" href="https://github.com/appsattic/imagelicious.org">
                 <i className="fa fa-github"></i>
               </a>
             </p>
@@ -375,7 +388,7 @@ var App = React.createClass({
     return (
       <div>
         <TopBar />
-        <Hero />
+        <Hero store={ store } />
         <MsgList msgs={ store.getMsgs() } />
         <Status store={ store } />
         <Page store={ store } />
