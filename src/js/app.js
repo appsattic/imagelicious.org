@@ -355,6 +355,38 @@ var Hero = React.createClass({
   }
 })
 
+var Social = React.createClass({
+  render() {
+    // Twitter Share button from https://publish.twitter.com/
+    return (
+      <div id="social">
+        <iframe src="https://ghbtns.com/github-btn.html?user=appsattic&repo=imagelicious.org&type=star&count=true" frameborder="0" scrolling="0" width="90px" height="20px"></iframe>
+        { ' ' }
+        <iframe src="https://ghbtns.com/github-btn.html?user=chilts&type=follow&count=true" frameborder="0" scrolling="0" width="150px" height="20px"></iframe>
+        { ' ' }
+        <a
+          href="https://twitter.com/andychilton"
+          className="twitter-follow-button"
+          data-show-count="true"
+        >
+          Follow me @andychilton
+        </a>
+        { ' ' }
+        <a
+          href="https://twitter.com/share"
+          className="twitter-share-button"
+          data-text="imagelicious.org - Image hosting service, using only Firebase. Open source."
+          data-url="https://imagelicious.org/"
+          data-via="andychilton"
+          data-show-count="false"
+        >
+          Tweet about imagelicious.org
+        </a>
+      </div>
+    )
+  },
+})
+
 var Footer = React.createClass({
   render() {
     return (
@@ -366,11 +398,7 @@ var Footer = React.createClass({
               <br />
               The source code is licensed <a href="https://opensource.org/licenses/ISC">ISC</a>.
             </p>
-            <p>
-              <a className="icon" href="https://github.com/appsattic/imagelicious.org">
-                <i className="fa fa-github"></i>
-              </a>
-            </p>
+            <Social />
           </div>
         </div>
       </footer>

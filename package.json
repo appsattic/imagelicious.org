@@ -1,6 +1,6 @@
 {
   "name": "imagelicious.org",
-  "description": "An image hosting service using only Firebase.",
+  "description": "Image hosting service, using only Firebase.",
   "version": "0.1.0",
   "private": true,
   "devDependencies": {

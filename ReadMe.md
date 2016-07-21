@@ -25,8 +25,8 @@ Firebase documentation to help you with this).
 Firstly, clone the repo and install dev dependencies:
 
 ```
-git clone https://github.com/chilts/imagelicious
-cd imagelicious
+git clone https://github.com/appsattic/imagelicious.org
+cd imagelicious.org
 npm install
 ```
 
@@ -34,6 +34,7 @@ Set these environment variables with the respective values (see `set-env.sh` for
 the build phase:
 
 ```sh
+export MIN=".min" # or just "" when developing
 export FIREBASE_API_KEY="..."
 export FIREBASE_AUTH_DOMAIN="..."
 export FIREBASE_DATABASE_URL="..."
