@@ -40,11 +40,12 @@ Set these environment variables with the respective values (see `set-env.sh` for
 the build phase:
 
 ```sh
-export MIN=".min" # or just "" when developing
-export FIREBASE_API_KEY="..."
-export FIREBASE_AUTH_DOMAIN="..."
-export FIREBASE_DATABASE_URL="..."
-export FIREBASE_STORAGE_BUCKET="..."
+export FIREBASE_API_KEY="..."          # e.g. abc...123...xyz (a long opaque string)
+export FIREBASE_AUTH_DOMAIN="..."      # e.g. my-project.firebaseapp.com
+export FIREBASE_DATABASE_URL="..."     # e.g. https://my-project.firebaseio.com
+export FIREBASE_STORAGE_BUCKET="..."   # e.g. my-project.appspot.com
+export MIN=".min"                      # or just "" when developing
+export GA_TRACKING_ID="UA-XXXXXX-XX"   # or just "" when developing
 ```
 
 Then deploy the site (hosting, database settings, and storage settings):

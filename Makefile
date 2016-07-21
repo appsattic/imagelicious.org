@@ -7,7 +7,7 @@ public:
 	mkdir -p public/js
 
 html:
-	m4 --prefix-builtins --define=__MIN__=${MIN} src/index.html > public/index.html
+	m4 --prefix-builtins --define=__MIN__=${MIN} --define=__GA__=${GA_TRACKING_ID} src/index.html > public/index.html
 	cp src/img/* public/img/
 
 browserify:
