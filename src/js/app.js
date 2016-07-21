@@ -394,9 +394,9 @@ var Footer = React.createClass({
         <div className="container">
           <div className="content has-text-centered">
             <p>
-              <strong>imagelicious.org</strong> by <a href="https://chilts.org/">Andrew Chilton</a>, runs on <a href="https://firebase.google.com/">Firebase</a>.
+              <strong>imagelicious.org</strong> by <a href="http://chilts.org/" target="_blank">Andrew Chilton</a> of <a href="http://appsattic.com/" target="_blank">AppsAttic</a>, runs on <a href="https://firebase.google.com/" target="_blank">Firebase</a>.
               <br />
-              The source code is licensed <a href="https://opensource.org/licenses/ISC">ISC</a>.
+              The source code is licensed <a href="https://opensource.org/licenses/ISC" target="_blank">ISC</a>.
             </p>
             <Social />
           </div>
