@@ -360,9 +360,9 @@ var Social = React.createClass({
     // Twitter Share button from https://publish.twitter.com/
     return (
       <div id="social">
-        <iframe src="https://ghbtns.com/github-btn.html?user=appsattic&repo=imagelicious.org&type=star&count=true" frameborder="0" scrolling="0" width="90px" height="20px"></iframe>
+        <iframe src="https://ghbtns.com/github-btn.html?user=appsattic&repo=imagelicious.org&type=star&count=true" frameBorder="0" scrolling="0" width="90px" height="20px"></iframe>
         { ' ' }
-        <iframe src="https://ghbtns.com/github-btn.html?user=chilts&type=follow&count=true" frameborder="0" scrolling="0" width="150px" height="20px"></iframe>
+        <iframe src="https://ghbtns.com/github-btn.html?user=chilts&type=follow&count=true" frameBorder="0" scrolling="0" width="150px" height="20px"></iframe>
         { ' ' }
         <a
           href="https://twitter.com/andychilton"
