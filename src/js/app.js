@@ -163,7 +163,10 @@ var Status = React.createClass({
   }
 })
 
-var Image = React.createClass({
+var ThumbnailImage = React.createClass({
+  propTypes: {
+    img : React.PropTypes.object.isRequired,
+  },
   render() {
     var img = this.props.img
 
@@ -224,6 +227,93 @@ var Image = React.createClass({
   }
 })
 
+var SignInPage = React.createClass({
+  propTypes: {
+    store : React.PropTypes.object.isRequired,
+  },
+  render() {
+    var store = this.props.store
+    var user = store.getUser()
+
+    if ( !user === null ) {
+      return <div />
+    }
+
+    return <div>You are already logged in.</div>
+  }
+})
+
+var AppPage = React.createClass({
+  propTypes: {
+    store : React.PropTypes.object.isRequired,
+  },
+  render() {
+    var store = this.props.store
+    var user = store.getUser()
+
+    if ( !user ) {
+      return <div />
+    }
+
+    // show the logged in user all of their images
+    var imgs = store.getImgs()
+    var imgKeys = Object.keys(imgs)
+    let columns = imgKeys.sort().reverse().map(function(key) {
+      return (
+        <div key={ key } className="column is-one-quarter">
+          <ThumbnailImage img={ imgs[key] } />
+        </div>
+      )
+    })
+
+    // render the upload form and their images
+    return (
+      <div className="container">
+        { user ? <ImageUploadForm store={ store } /> : null }
+        <div className="columns is-multiline is-mobile">
+          { columns }
+        </div>
+      </div>
+    )
+  }
+})
+
+var ImgPage = React.createClass({
+  propTypes: {
+    store : React.PropTypes.object.isRequired,
+  },
+  render() {
+    var store = this.props.store
+    var img = store.getImg()
+
+    if ( img === null ) {
+      return <div>Loading...</div>
+    }
+
+    if ( img === false ) {
+      return <div>Unknown Image</div>
+    }
+
+    if ( img instanceof Error ) {
+      return <div>Something went wrong when loading image : { '' + img }</div>
+    }
+
+    return (
+      <div className="container">
+        <section className="section">
+          <article className="tile is-child box">
+            <figure className="image is-4by3">
+              <img src={ img.url } />
+            </figure>
+            <p style={{ fontSize: '18px'}} className="title">{ img.filename }</p>
+            <p style={{ fontSize: '12px'}} className="subtitle">{ img.contentType }</p>
+          </article>
+        </section>
+      </div>
+    )
+  }
+})
+
 var Page = React.createClass({
   propTypes: {
     store : React.PropTypes.object.isRequired,
@@ -232,52 +322,21 @@ var Page = React.createClass({
     var store = this.props.store
     var user = store.getUser()
 
-    console.log('Page.render(): hash=' + store.getHash())
-
     // render a logged in page
     var page = store.getPage()
-    var args = store.getArgs()
 
-    console.log('page=' + page)
+    console.log('Page:render() - page=' + page)
 
-    if ( page === 'app' ) {
-      if ( !user ) {
-        return <div />
-      }
-
-      // show the logged in user all of their images
-      var imgs = store.getImgs()
-      var imgKeys = Object.keys(imgs)
-      let columns = imgKeys.sort().reverse().map(function(key) {
-        return (
-          <div key={ key } className="column is-one-quarter">
-            <Image
-              img={ imgs[key] }
-              filename={ imgs[key].filename }
-              contentType={ imgs[key].contentType }
-              downloadUrl={ imgs[key].downloadUrl }
-            />
-          </div>
-        )
-      })
-
-      // render the upload form and their images
-      return (
-        <div className="container">
-          { user ? <ImageUploadForm store={ store } /> : null }
-          <div className="columns is-multiline is-mobile">
-            { columns }
-          </div>
-        </div>
-      )
+    if ( page === 'sign-in' ) {
+      return <SignInPage store={ store } />
     }
 
-    if ( page === 'image' ) {
-      return (
-        <div>
-          <p>This is an image, right here: imageId={ args.imageId }.</p>
-        </div>
-      )
+    if ( page === 'app' ) {
+      return <AppPage store={ store } />
+    }
+
+    if ( page === 'img' ) {
+      return <ImgPage store={ store } />
     }
 
     return (

@@ -9,6 +9,11 @@ downloads.
 
 To upload images, the user must sign in using their Google Account.
 
+To view images, the user must have a URL with a valid image ID (obtained either directly or indirectly from the
+original uploader).
+
+If you are not signed in nor have an image URL, you can't do much on the site. :)
+
 ## Deploying a copy of imagelicious.org ##
 
 ### Firebase ###

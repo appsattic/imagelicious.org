@@ -102,7 +102,10 @@ function uploadImage(store, file, callback) {
         pubRef.set({
           // include `uid` so we can check auth in the database (otherwise anyone could put stuff here)
           uid : currentUser.uid,
-          // No need to save anything else, since we can get it from the file metadata when loading the image.
+          // downloadUrl : uploadTask.snapshot.downloadURL,
+          // filename    : file.name,
+          // size        : metadata.size,
+          // contentType : metadata.contentType,
         }).catch(function(err) {
           console.log('pubRef.set: err:', err)
         });

@@ -1,16 +1,19 @@
 // --------------------------------------------------------------------------------------------------------------------
 
+"use strict"
+
 // global
 var firebase = require('firebase')
 
+// local
+var cfg = require('./cfg.js')
+
 // --------------------------------------------------------------------------------------------------------------------
 
-firebase.initializeApp({
-  apiKey        : process.env.FIREBASE_API_KEY,
-  authDomain    : process.env.FIREBASE_AUTH_DOMAIN,
-  databaseURL   : process.env.FIREBASE_DATABASE_URL,
-  storageBucket : process.env.FIREBASE_STORAGE_BUCKET,
-})
+firebase.initializeApp(cfg.firebase)
+
+// Uncomment this to enable logging of what is happening in the Firebase Database.
+// firebase.database().enableLogging(true)
 
 // --------------------------------------------------------------------------------------------------------------------
 

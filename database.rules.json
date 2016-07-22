@@ -22,8 +22,8 @@
       }
     },
     "img": {
-      // Don't put a ".read" here, since we don't want someone to download everything from `img/` down, but instead
-      // only if they know a valid `$imgId`.
+      // Don't put a ".read" here, since we don't want someone to download everything from img/` down, but just
+      // individual images if they know a valid `$imgId`.
       "$imgId": {
         ".read": true,
         ".write": "!data.exists()",

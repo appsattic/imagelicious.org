@@ -4,13 +4,11 @@
 var React = require('react')
 var ReactDOM = require('react-dom')
 
-// npm
-var HashiRouter = require('hashirouter')
-
 // local
 var firebase = require('./firebase.js')
 var store = require('./store.js')
 var App = require('./app.js')
+var router = require('./router.js')
 
 // --------------------------------------------------------------------------------------------------------------------
 // events
@@ -59,46 +57,15 @@ firebase.auth().onAuthStateChanged(function(currentUser) {
 
 // See: http://jamesknelson.com/routing-with-raw-react/
 function onHashChange() {
-  // take the initial '#' off the window.location.hash
-  var hash = window.location.hash.substr(1)
-  console.log('onHashChange() - hash: [' + hash + ']')
-  store.setHash(hash)
-  render()
-}
-
-var router = new HashiRouter({
-  def : 'app',
-  debug : true,
-})
-router.add('app', (imageId) => {
-  store.setPage('app')
-  store.setArgs({}) // no args
-})
-router.add('image/:imageId', (imageId) => {
-  store.setPage('image')
-  store.setArgs({
-    imageId : imageId,
-  })
-})
-router.setNotFound((hash) => {
-  window.location.hash = 'app'
-  // store.setPage('image')
-  // store.setArgs([])
-})
-
-function onHashChange() {
   var hash = window.location.hash
 
   // calls a function you provided OR returns a newHash (not both)
   console.log('onHashChange() - calling router.route()')
   var newHash = router.route(hash.substr(1))
-  if ( newHash ) {
-    console.log('onHashChange() - got newHash=' + newHash)
-    window.location.hash = newHash
-    return
-  }
+  if ( !newHash ) return
 
-  store.setHash(hash)
+  console.log('onHashChange() - got newHash=' + newHash)
+  window.location.hash = newHash
 }
 
 // when there is a hashChange, call our function
