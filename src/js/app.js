@@ -127,9 +127,17 @@ var Status = React.createClass({
     // not logged in
     if ( user === false ) {
       return (
-        <p>
-          <a href="#" onClick={ this.signIn }>Sign in with Google</a>.
-        </p>
+        <section className="section">
+          <div className="container">
+            <nav className="level">
+              <div className="level-left">
+              </div>
+              <div className="level-right">
+                <p className="level-item"><a href="#" onClick={ this.signIn }>Sign in with Google</a></p>
+              </div>
+            </nav>
+          </div>
+        </section>
       )
     }
 
@@ -403,6 +411,17 @@ var Hero = React.createClass({
   },
   render() {
     var store = this.props.store
+    var user = store.getUser()
+
+    if ( user === null ) {
+      // don't show the Hero when loading
+      return <div />
+    }
+
+    if ( user ) {
+      // don't show the Hero if the user is logged in
+      return <div />
+    }
 
     return (
       <section className="hero is-primary">
