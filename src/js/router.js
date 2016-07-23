@@ -20,11 +20,14 @@ var router = new HashiRouter({
   def : 'app',
   debug : true,
 })
-router.add('app', (imageId) => {
+router.add('app', () => {
   store.init('app')
 })
-router.add('sign-in', (imageId) => {
+router.add('sign-in', () => {
   store.init('sign-in')
+})
+router.add('about', () => {
+  store.init('about')
 })
 router.add('img/:img_id', (img_id) => {
   store.init('img', { img_id : img_id })

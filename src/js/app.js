@@ -329,6 +329,20 @@ var ImgPage = React.createClass({
   }
 })
 
+var AboutPage = React.createClass({
+  render() {
+    return (
+      <section className="section">
+        <div className="container">
+          <h3 className="title is-3">About Imagelicious</h3>
+          <h5 className="subtitle is-5">Photo Gallery, built using Firebase.</h5>
+          <p>Some text here.</p>
+        </div>
+      </section>
+    )
+  }
+})
+
 var Page = React.createClass({
   propTypes: {
     store : React.PropTypes.object.isRequired,
@@ -354,6 +368,10 @@ var Page = React.createClass({
       return <ImgPage store={ store } />
     }
 
+    if ( page === 'about' ) {
+      return <AboutPage />
+    }
+
     return (
       <div>404 - Not Found</div>
     )
@@ -368,7 +386,7 @@ var TopBar = React.createClass({
           <header className="nav">
             <div className="container">
               <div className="nav-left">
-                <a className="nav-item" href="/">
+                <a className="nav-item" href="/#about">
                   <img src="/img/logo-48x36.png" alt="Logo" />
                   imagelicious.org
                 </a>
