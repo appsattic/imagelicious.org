@@ -5,7 +5,7 @@
         ".read": "auth.uid === $uid",
         "$imgId" : {
           ".write" : "auth.uid === $uid && !data.exists()",
-          ".validate": "newData.hasChildren(['filename', 'size', 'contentType', 'downloadUrl'])",
+          ".validate": "newData.hasChildren(['filename', 'size', 'contentType', 'downloadUrl', 'inserted'])",
           "filename": {
             ".validate": "newData.isString() && newData.val().length > 0"
           },
@@ -17,6 +17,12 @@
           },
           "downloadUrl": {
             ".validate": "newData.isString() && newData.val().length > 0"
+          },
+          "inserted": {
+            ".validate": "newData.val() <= now && newData.val() >= now - 15 * 1000"
+          },
+          "$other": {
+            ".validate": false
           }
         }
       }
@@ -27,9 +33,15 @@
       "$imgId": {
         ".read": true,
         ".write": "!data.exists()",
-        ".validate": "newData.hasChildren(['uid'])",
+        ".validate": "newData.hasChildren(['uid', 'inserted'])",
         "uid": {
           ".validate": "newData.isString() && newData.val() === auth.uid"
+        },
+        "inserted": {
+            ".validate": "newData.val() <= now && newData.val() >= now - 15 * 1000"
+        },
+        "$other": {
+          ".validate": false
         }
       }
     }

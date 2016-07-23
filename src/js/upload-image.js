@@ -97,6 +97,7 @@ function uploadImage(store, file, callback) {
           filename    : file.name,
           size        : metadata.size,
           contentType : metadata.contentType,
+          inserted    : firebase.database.ServerValue.TIMESTAMP,
         }).catch(function(err) {
           console.log('imgRef.set: err:', err)
         });
@@ -108,6 +109,7 @@ function uploadImage(store, file, callback) {
           // filename    : file.name,
           // size        : metadata.size,
           // contentType : metadata.contentType,
+          inserted    : firebase.database.ServerValue.TIMESTAMP,
         }).catch(function(err) {
           console.log('pubRef.set: err:', err)
         });
