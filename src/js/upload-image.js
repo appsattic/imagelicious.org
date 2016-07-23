@@ -7,6 +7,8 @@ var firebase = require('./firebase.js')
 
 // --------------------------------------------------------------------------------------------------------------------
 
+
+// From : https://firebase.google.com/docs/storage/web/upload-files
 function uploadImage(store, file, callback) {
 
   // make sure the file has something in it

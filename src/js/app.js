@@ -35,54 +35,6 @@ var MsgList = React.createClass({
   }
 })
 
-// From : https://firebase.google.com/docs/storage/web/upload-files
-var ImageUploadForm = React.createClass({
-  propTypes: {
-    store : React.PropTypes.object.isRequired,
-  },
-  onChange(ev) {
-    ev.preventDefault()
-
-    // our own store
-    var store = this.props.store
-
-    // Each 'file' would be something like:
-    //
-    // {
-    //   name             : "filename.png",
-    //   lastModified     : 1439245086000,
-    //   lastModifiedDate : new Date("2015-08-10T22:18:06.000Z"),
-    //   size             : 31564,
-    //   type             : "image/png",
-    // }
-
-    console.log('Files = ' + ev.target.files.length)
-    for( let i = 0; i < ev.target.files.length; i++ ) {
-      console.log('(' + i + ') file:', ev.target.files[i])
-      uploadImage(store, ev.target.files[i], function(err, res) {
-        if (err) {
-          store.addMsg('' + err)
-          return
-        }
-        // if everything went well, we don't need to do anything
-        console.log('Image uploaded')
-      })
-    }
-  },
-  onClick(ev) {
-    ev.preventDefault()
-    document.getElementById('file').click()
-  },
-  render() {
-    return (
-      <div>
-        <input type="file" id="file" name="file" onChange={ this.onChange } multiple={ true } style={ { display: 'none' } }/>
-        <button onClick={ this.onClick }>Upload File(s)</button>
-      </div>
-    )
-  }
-})
-
 var Status = React.createClass({
   propTypes: {
     store : React.PropTypes.object.isRequired,
@@ -113,6 +65,39 @@ var Status = React.createClass({
       // add this err to the messages
       store.addError(err.message)
     })
+  },
+  onChange(ev) {
+    ev.preventDefault()
+
+    // our own store
+    var store = this.props.store
+
+    // Each 'file' would be something like:
+    //
+    // {
+    //   name             : "filename.png",
+    //   lastModified     : 1439245086000,
+    //   lastModifiedDate : new Date("2015-08-10T22:18:06.000Z"),
+    //   size             : 31564,
+    //   type             : "image/png",
+    // }
+
+    console.log('Files = ' + ev.target.files.length)
+    for( let i = 0; i < ev.target.files.length; i++ ) {
+      console.log('(' + i + ') file:', ev.target.files[i])
+      uploadImage(store, ev.target.files[i], function(err, res) {
+        if (err) {
+          store.addMsg('' + err)
+          return
+        }
+        // if everything went well, we don't need to do anything
+        console.log('Image uploaded')
+      })
+    }
+  },
+  onClickUpload(ev) {
+    ev.preventDefault()
+    document.getElementById('file').click()
   },
   signOut(ev) {
     ev.preventDefault()
@@ -148,15 +133,34 @@ var Status = React.createClass({
       )
     }
 
+    var count = store.countImgs()
+
     // yes, logged in
     return (
       <section className="section">
         <div className="container">
-          Hello, { user.displayName }!
-          { ' | ' }
-          { '<' + user.email + '>' }
-          { ' | ' }
-          <a href="#" onClick={ this.signOut }>Sign Out</a>
+          <nav className="level">
+            <div className="level-left">
+              <div className="level-item">
+                <p className="subtitle is-5">
+                  <strong>{ count }</strong> image(s)
+                </p>
+              </div>
+              <p className="level-item">
+                <input type="file" id="file" name="file" onChange={ this.onChange } multiple={ true } style={ { display: 'none' } }/>
+                <a className="button is-success" onClick={ this.onClickUpload }>Upload Images</a>
+              </p>
+              <p className="level-item">Filter:</p>
+              <p className="level-item"><strong>All</strong></p>
+              <p className="level-item"><a>Published</a></p>
+              <p className="level-item"><a>Drafts</a></p>
+              <p className="level-item"><a>Public</a></p>
+            </div>
+            <div className="level-right">
+              <p className="level-item"><strong>{ user.email }</strong></p>
+              <p className="level-item"><a href="#" onClick={ this.signOut }>Sign Out</a></p>
+            </div>
+          </nav>
         </div>
       </section>
     )
@@ -268,12 +272,13 @@ var AppPage = React.createClass({
 
     // render the upload form and their images
     return (
-      <div className="container">
-        { user ? <ImageUploadForm store={ store } /> : null }
-        <div className="columns is-multiline is-mobile">
-          { columns }
+      <section className="section">
+        <div className="container">
+          <div className="columns is-multiline is-mobile">
+            { columns }
+          </div>
         </div>
-      </div>
+      </section>
     )
   }
 })
@@ -285,6 +290,8 @@ var ImgPage = React.createClass({
   render() {
     var store = this.props.store
     var img = store.getImg()
+
+    console.log('ImgPage.render(): img=', img)
 
     if ( img === null ) {
       return <div>Loading...</div>
@@ -299,8 +306,8 @@ var ImgPage = React.createClass({
     }
 
     return (
-      <div className="container">
-        <section className="section">
+      <section className="section">
+        <div className="container">
           <article className="tile is-child box">
             <figure className="image is-4by3">
               <img src={ img.url } />
@@ -308,8 +315,8 @@ var ImgPage = React.createClass({
             <p style={{ fontSize: '18px'}} className="title">{ img.filename }</p>
             <p style={{ fontSize: '12px'}} className="subtitle">{ img.contentType }</p>
           </article>
-        </section>
-      </div>
+        </div>
+      </section>
     )
   }
 })

@@ -10,7 +10,6 @@ var firebase = require('./firebase.js')
 
 // only a single instance of the store
 var store = {
-  hash : null,
   page : null,
   args : {},
   user : null,
@@ -135,6 +134,10 @@ var store = {
     return this.imgs
   },
 
+  countImgs : function countImgs() {
+    return Object.keys(this.imgs).length
+  },
+
   // `img` will be in one of 4 states:
   //
   // - null   - loading
@@ -173,14 +176,17 @@ var store = {
   },
 
   reset: function() {
-    this.hash = null
-    this.page = null
-    this.args = {}
+    // Don't reset everything. The following are left untouched:
+    //
+    // * page
+    // * args
+    // * img
+    // * listeners
+    //
     this.user = null
     this.msgs = []
     this.imgs = {}
     this.cache = {}
-    this.listeners = []
   },
 }
 
