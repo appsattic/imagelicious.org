@@ -17,6 +17,7 @@ var store = {
   msgs : [],
   imgs : {},
   img  : null,
+  cache : {},
   listeners : [],
 
   // `user` will be in one of three states:
@@ -55,26 +56,35 @@ var store = {
     // if we're on an `#img/$img_id` page, then we should load up the image
     if ( page === 'img' ) {
       // ToDo: check to see if this `img` is already loaded up
+      if ( args.img_id in this.cache ) {
+        console.log('yes, we have this image in the cache' + args.img_id)
+        console.log(this.cache[args.img_id])
+        // store.setImg(this.cache[args.img_id])
+        this.img = this.cache[args.img_id]
+        this.notify()
+        return
+      }
 
       console.log('init is trying to fetch this img:', args.img_id)
 
-      store.setImg(null) // "Loading ..."
+      this.setImg(null) // "Loading ..."
 
       // get a reference to this image from it's Google Storage location : https://firebase.google.com/docs/storage/web/download-files
       let url = 'gs://' + cfg.firebase.storageBucket + '/img/' + args.img_id
       let ref = firebase.storage().refFromURL(url)
       let p = ref.getDownloadURL()
-      p.then(function(url) {
+      p.then((url) => {
         console.log('*** url=' + url)
-        store.setImg({
+        this.setImg({
           img_id : args.img_id,
           url : url,
         })
-      }).catch(function(err) {
+        console.log('after store.setImg()')
+      }).catch((err) => {
         // Handle any errors
         console.log('*** Error getting the download URL: ', err)
         if ( err.code === 'storage/object-not-found' ) {
-          store.setImg(false)
+          this.setImg(false)
         }
       })
     }
@@ -133,6 +143,14 @@ var store = {
   // - object - loaded up correctly
   setImg : function setImg(img) {
     this.img = img
+    console.log('setting img:', img)
+
+    // if we have an image, store it in the cache
+    if ( img && !(img instanceof Error) ) {
+      console.log('yes, we have a proper img, not null, not false and not an error:', img.img_id)
+      this.cache[img.img_id] = img
+    }
+
     this.notify()
   },
 
@@ -161,6 +179,7 @@ var store = {
     this.user = null
     this.msgs = []
     this.imgs = {}
+    this.cache = {}
     this.listeners = []
   },
 }
