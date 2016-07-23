@@ -177,10 +177,12 @@ var Status = React.createClass({
 
 var ThumbnailImage = React.createClass({
   propTypes: {
-    img : React.PropTypes.object.isRequired,
+    imgId : React.PropTypes.string.isRequired,
+    img   : React.PropTypes.object.isRequired,
   },
   render() {
-    var img = this.props.img
+    var imgId = this.props.imgId
+    var img   = this.props.img
 
     if ( img.state === 'uploading' ) {
       return (
@@ -218,7 +220,7 @@ var ThumbnailImage = React.createClass({
             img.downloadUrl
             &&
             <figure className="image is-4by3">
-              <img src={ img.downloadUrl } />
+              <a href={ '#img/' + imgId }><img src={ img.downloadUrl } /></a>
             </figure>
           }
           <p style={{ fontSize: '18px'}} className="title">Saving metadata...</p>
@@ -230,7 +232,7 @@ var ThumbnailImage = React.createClass({
     return (
       <article className="tile is-child box">
         <figure className="image is-4by3">
-          <img src={ img.downloadUrl } />
+          <a href={ '#img/' + imgId }><img src={ img.downloadUrl } /></a>
         </figure>
         <p style={{ fontSize: '18px'}} className="title">{ img.filename }</p>
         <p style={{ fontSize: '12px'}} className="subtitle">{ img.contentType }</p>
@@ -273,7 +275,7 @@ var AppPage = React.createClass({
     let columns = imgKeys.sort().reverse().map(function(key) {
       return (
         <div key={ key } className="column is-one-quarter">
-          <ThumbnailImage img={ imgs[key] } />
+          <ThumbnailImage imgId={ key } img={ imgs[key] } />
         </div>
       )
     })
