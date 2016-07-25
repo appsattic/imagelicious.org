@@ -52,31 +52,51 @@ var store = {
       return
     }
 
-    // if we're on an `#img/$img_id` page, then we should load up the image
+    // if we're on an `#img/$imgId` page, then we should load up the image
     if ( page === 'img' ) {
+      let imgId = args.imgId
+
       // ToDo: check to see if this `img` is already loaded up
-      if ( args.img_id in this.cache ) {
-        console.log('yes, we have this image in the cache' + args.img_id)
-        console.log(this.cache[args.img_id])
-        // store.setImg(this.cache[args.img_id])
-        this.img = this.cache[args.img_id]
+      if ( imgId in this.cache ) {
+        console.log('yes, we have this image in the cache' + imgId)
+        console.log(this.cache[imgId])
+        // store.setImg(this.cache[imgId])
+        this.img = this.cache[imgId]
         this.notify()
         return
       }
 
-      console.log('init is trying to fetch this img:', args.img_id)
+      // see if this image is in the users list already
+      console.log('Looking for image ' + imgId + 'in this.imgs ...')
+      if ( imgId in this.imgs ) {
+        console.log('found it')
+        // just get a skeleton `img` for the `this.cache`
+        let img = {
+          imgId : imgId,
+          downloadUrl : this.imgs[imgId].downloadUrl,
+        }
+        // save into the current image
+        this.img = img
+        // ... and into the cache
+        this.cache[imgId] = img
+        console.log('this.cache:', this.cache)
+        this.notify()
+        return
+      }
+
+      console.log('init is trying to fetch this img:', imgId)
 
       this.setImg(null) // "Loading ..."
 
       // get a reference to this image from it's Google Storage location : https://firebase.google.com/docs/storage/web/download-files
-      let url = 'gs://' + cfg.firebase.storageBucket + '/img/' + args.img_id
+      let url = 'gs://' + cfg.firebase.storageBucket + '/img/' + imgId
       let ref = firebase.storage().refFromURL(url)
       let p = ref.getDownloadURL()
-      p.then((url) => {
-        console.log('*** url=' + url)
+      p.then((downloadUrl) => {
+        console.log('*** downloadUrl=' + downloadUrl)
         this.setImg({
-          img_id : args.img_id,
-          url : url,
+          imgId : imgId,
+          downloadUrl : downloadUrl,
         })
         console.log('after store.setImg()')
       }).catch((err) => {
@@ -121,6 +141,8 @@ var store = {
   },
 
   imgChanged : function imgChanged(key, val) {
+    // save the key in the val object too
+    val[key] = key
     this.imgs[key] = val
     this.notify()
   },
@@ -150,8 +172,8 @@ var store = {
 
     // if we have an image, store it in the cache
     if ( img && !(img instanceof Error) ) {
-      console.log('yes, we have a proper img, not null, not false and not an error:', img.img_id)
-      this.cache[img.img_id] = img
+      console.log('yes, we have a proper img, not null, not false and not an error:', img.imgId)
+      this.cache[img.imgId] = img
     }
 
     this.notify()

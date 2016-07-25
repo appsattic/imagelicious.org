@@ -29,8 +29,8 @@ router.add('sign-in', () => {
 router.add('about', () => {
   store.init('about')
 })
-router.add('img/:img_id', (img_id) => {
-  store.init('img', { img_id : img_id })
+router.add('img/:imgId', (imgId) => {
+  store.init('img', { imgId : imgId })
 })
 router.setNotFound((hash) => {
   window.location.hash = 'app'

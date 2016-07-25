@@ -271,8 +271,15 @@ var AppPage = React.createClass({
 
     // show the logged in user all of their images
     var imgs = store.getImgs()
-    var imgKeys = Object.keys(imgs)
-    let columns = imgKeys.sort().reverse().map(function(key) {
+    var imgKeys = Object.keys(imgs).sort()
+    let count = imgKeys.length
+
+    console.log('>>> count=' + count)
+
+    // -- Pagination --
+    // From: http://bulma.io/documentation/components/pagination/
+
+    let columns = imgKeys.reverse().map(function(key) {
       return (
         <div key={ key } className="column is-one-quarter">
           <ThumbnailImage imgId={ key } img={ imgs[key] } />
@@ -320,7 +327,7 @@ var ImgPage = React.createClass({
         <div className="container">
           <article className="tile is-child box">
             <figure className="image is-4by3">
-              <img src={ img.url } />
+              <img src={ img.downloadUrl } />
             </figure>
             <p style={{ fontSize: '18px'}} className="title">{ img.filename }</p>
             <p style={{ fontSize: '12px'}} className="subtitle">{ img.contentType }</p>
@@ -399,14 +406,14 @@ var TopBar = React.createClass({
                 <span></span>
               </span>
               <div className="nav-right nav-menu">
-                <a className="nav-item is-active" href="/">
+                <a className="nav-item is-active" href="/#app">
                   Home
                 </a>
-                <a className="nav-item">
-                  Examples
+                <a className="nav-item" href="/#docs">
+                  Docs
                 </a>
-                <a className="nav-item">
-                  Documentation
+                <a className="nav-item" href="/#examples">
+                  Examples
                 </a>
                 <span className="nav-item">
                   <a href="https://github.com/appsattic/imagelicious.org" className="button is-primary is-inverted">
