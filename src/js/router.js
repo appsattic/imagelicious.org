@@ -17,11 +17,18 @@ var store = require('./store.js')
 // - 'image'   - to view an image (not just yours, but anyones)
 //
 var router = new HashiRouter({
-  def : 'app',
+  def : 'gallery/1',
   debug : true,
 })
-router.add('app', () => {
-  store.init('app')
+router.add('gallery/:pageNum', (pageNum) => {
+  // always gives a number, even zero (for empty strings or anything else)
+  pageNum = pageNum | 0
+
+  if ( pageNum === 0 ) {
+    return window.location.hash = 'gallery/1'
+  }
+
+  store.init('gallery', { pageNum : pageNum })
 })
 router.add('sign-in', () => {
   store.init('sign-in')

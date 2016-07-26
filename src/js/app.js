@@ -4,6 +4,7 @@
 var React = require('react')
 
 // local
+var cfg = require('./cfg.js')
 var firebase = require('./firebase.js')
 var uploadImage = require('./upload-image.js')
 
@@ -257,17 +258,103 @@ var SignInPage = React.createClass({
   }
 })
 
-var AppPage = React.createClass({
+// Pagination
+//
+// This component will always show links to:
+//
+// 1. The first page
+// 2. The prev page
+// 3. The current page plus a few around it
+// 4. The next page
+// 5. The last page
+//
+var Pagination = React.createClass({
+  propTypes: {
+    pageNum : React.PropTypes.number.isRequired,
+    total   : React.PropTypes.number.isRequired,
+    perPage : React.PropTypes.number.isRequired,
+  },
+  render() {
+    var pageNum = this.props.pageNum
+    var total = this.props.total
+    var perPage = this.props.perPage
+
+    console.log('&&& 1')
+
+    // calculate some things related to the first/prev/next/last
+    var totalPages = Math.ceil(total / perPage)
+    var isFirst = pageNum === 1
+    var isLast  = pageNum === totalPages
+
+    console.log('&&& 2', isFirst, isLast)
+
+    var first = (
+      <a
+        href="#gallery/1"
+        className={ 'button' + (isFirst ? ' is-disabled' : '') }
+      >&laquo;</a>
+    )
+    var prev = (
+      <a
+        href={ "#gallery/" + ( pageNum - 1 ) }
+        className={ 'button' + (isFirst ? ' is-disabled' : '') }
+      >&lt;</a>
+    )
+    var next = (
+      <a
+        href={ "#gallery/" + ( pageNum + 1 ) }
+        className={ 'button' + (isLast ? ' is-disabled' : '') }
+      >&gt;</a>
+    )
+    var last = (
+      <a
+        href={ "#gallery/" + totalPages }
+        className={ 'button' + (isLast ? ' is-disabled' : '') }
+      >&raquo;</a>
+    )
+
+    var pages = []
+    for(let p = 1; p <= totalPages; p++) {
+      pages.push(
+        <li>
+          <a
+            href={ "#gallery/" + p }
+            className={ 'button' + (p === pageNum ? ' is-disabled' : '') }
+          >{ p }</a>
+        </li>
+      )
+    }
+
+    return (
+      <nav className="pagination">
+        <ul>
+          <li>{ first }</li>
+          <li>{ prev }</li>
+          <li></li>
+          { pages }
+          <li></li>
+          <li>{ next }</li>
+          <li>{ last }</li>
+        </ul>
+      </nav>
+    )
+  }
+})
+
+var GalleryPage = React.createClass({
   propTypes: {
     store : React.PropTypes.object.isRequired,
   },
   render() {
     var store = this.props.store
     var user = store.getUser()
+    var args = store.getArgs()
 
     if ( !user ) {
       return <div />
     }
+
+    var pageNum = args.pageNum
 
     // show the logged in user all of their images
     var imgs = store.getImgs()
@@ -291,6 +378,7 @@ var AppPage = React.createClass({
     return (
       <section className="section">
         <div className="container">
+          <Pagination pageNum={ pageNum } total={ imgKeys.length } perPage={ cfg.imgsPerPage } />
           <div className="columns is-multiline is-mobile">
             { columns }
           </div>
@@ -369,8 +457,8 @@ var Page = React.createClass({
       return <SignInPage store={ store } />
     }
 
-    if ( page === 'app' ) {
-      return <AppPage store={ store } />
+    if ( page === 'gallery' ) {
+      return <GalleryPage store={ store } />
     }
 
     if ( page === 'img' ) {
@@ -406,7 +494,7 @@ var TopBar = React.createClass({
                 <span></span>
               </span>
               <div className="nav-right nav-menu">
-                <a className="nav-item is-active" href="/#app">
+                <a className="nav-item is-active" href="#gallery/1">
                   Home
                 </a>
                 <a className="nav-item" href="/#docs">

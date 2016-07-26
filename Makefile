@@ -5,9 +5,11 @@ build: clean public html browserify
 public:
 	mkdir -p public/img
 	mkdir -p public/js
+	mkdir -p public/css
 
 html:
 	m4 --prefix-builtins --define=__MIN__=${MIN} --define=__GA__=${GA_TRACKING_ID} src/index.html > public/index.html
+	cp src/css/* public/css/
 	cp src/img/* public/img/
 
 browserify:
