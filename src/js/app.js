@@ -1,5 +1,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
+"use strict"
+
 // global
 var React = require('react')
 
@@ -20,16 +22,12 @@ var MsgList = React.createClass({
       <div>
         {
           msgs.length
-          ?
-          <ul>
-            {
-              msgs.map((msg, i) => {
-                return <li key={ i }>{ msg }</li>
-              })
-            }
-          </ul>
-          :
-          null
+          ? <ul>
+              {
+                msgs.map((msg, i) => <li key={ i }>{ msg }</li> )
+              }
+            </ul>
+          : null
         }
       </div>
     )
@@ -188,8 +186,8 @@ var ThumbnailImage = React.createClass({
     if ( img.state === 'uploading' ) {
       return (
         <article className="tile is-child box">
-          <p style={{ fontSize: '18px'}} className="title">Uploading...</p>
-          <p style={{ fontSize: '12px'}} className="subtitle">Progress: { img.progress }%</p>
+          <p style={{ fontSize: '18px' }} className="title">Uploading...</p>
+          <p style={{ fontSize: '12px' }} className="subtitle">Progress: { img.progress }%</p>
           <progress max="100" value={ img.progress } style={ { width: "100%" } } />
         </article>
       )
@@ -198,8 +196,8 @@ var ThumbnailImage = React.createClass({
     if ( img.state === 'paused' ) {
       return (
         <article className="tile is-child box">
-          <p style={{ fontSize: '18px'}} className="title">Paused</p>
-          <p style={{ fontSize: '12px'}} className="subtitle">Progress: { img.progress }%</p>
+          <p style={{ fontSize: '18px' }} className="title">Paused</p>
+          <p style={{ fontSize: '12px' }} className="subtitle">Progress: { img.progress }%</p>
           <progress max="100" value={ img.progress } style={ { width: "100%" } } />
         </article>
       )
@@ -208,8 +206,8 @@ var ThumbnailImage = React.createClass({
     if ( img.state === 'error' ) {
       return (
         <article className="tile is-child box">
-          <p style={{ fontSize: '18px'}} className="title">Error</p>
-          <p style={{ fontSize: '12px'}} className="subtitle">{ img.msg }</p>
+          <p style={{ fontSize: '18px' }} className="title">Error</p>
+          <p style={{ fontSize: '12px' }} className="subtitle">{ img.msg }</p>
         </article>
       )
     }
@@ -219,13 +217,13 @@ var ThumbnailImage = React.createClass({
         <article className="tile is-child box">
           {
             img.downloadUrl
-            &&
-            <figure className="image is-4by3">
-              <a href={ '#img/' + imgId }><img src={ img.downloadUrl } /></a>
-            </figure>
+            ? <figure className="image is-4by3">
+                <a href={ '#img/' + imgId }><img src={ img.downloadUrl } /></a>
+              </figure>
+            : null
           }
-          <p style={{ fontSize: '18px'}} className="title">Saving metadata...</p>
-          <p style={{ fontSize: '12px'}} className="subtitle">Progress: Complete</p>
+          <p style={{ fontSize: '18px' }} className="title">Saving metadata...</p>
+          <p style={{ fontSize: '12px' }} className="subtitle">Progress: Complete</p>
         </article>
       )
     }
@@ -235,8 +233,8 @@ var ThumbnailImage = React.createClass({
         <figure className="image is-4by3">
           <a href={ '#img/' + imgId }><img src={ img.downloadUrl } /></a>
         </figure>
-        <p style={{ fontSize: '18px'}} className="title">{ img.filename }</p>
-        <p style={{ fontSize: '12px'}} className="subtitle">{ img.contentType }</p>
+        <p style={{ fontSize: '18px' }} className="title">{ img.filename }</p>
+        <p style={{ fontSize: '12px' }} className="subtitle">{ img.contentType }</p>
       </article>
     )
   }
@@ -357,14 +355,13 @@ var GalleryPage = React.createClass({
     var pageNum = args.pageNum
 
     // show the logged in user all of their images
-    var imgs = store.getImgs()
-    var imgKeys = Object.keys(imgs).sort()
-    let count = imgKeys.length
-
-    console.log('>>> count=' + count)
+    const imgs = store.getImgs()
+    const imgKeys = Object.keys(imgs).sort()
 
     // -- Pagination --
     // From: http://bulma.io/documentation/components/pagination/
+
+    // let's filter the pagination based on the filters available
 
     let columns = imgKeys.reverse().map(function(key) {
       return (
@@ -417,8 +414,8 @@ var ImgPage = React.createClass({
             <figure className="image is-4by3">
               <img src={ img.downloadUrl } />
             </figure>
-            <p style={{ fontSize: '18px'}} className="title">{ img.filename }</p>
-            <p style={{ fontSize: '12px'}} className="subtitle">{ img.contentType }</p>
+            <p style={{ fontSize: '18px' }} className="title">{ img.filename }</p>
+            <p style={{ fontSize: '12px' }} className="subtitle">{ img.contentType }</p>
           </article>
         </div>
       </section>
@@ -446,7 +443,6 @@ var Page = React.createClass({
   },
   render() {
     var store = this.props.store
-    var user = store.getUser()
 
     // render a logged in page
     var page = store.getPage()

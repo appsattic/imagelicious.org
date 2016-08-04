@@ -1,7 +1,8 @@
 // --------------------------------------------------------------------------------------------------------------------
 
+"use strict"
+
 // global
-var React = require('react')
 var ReactDOM = require('react-dom')
 
 // local
@@ -16,10 +17,8 @@ var router = require('./router.js')
 firebase.auth().onAuthStateChanged(function(currentUser) {
   console.log('onAuthStateChanged() - currentUser:', currentUser)
 
-  var thisUser;
-
   if ( currentUser ) {
-    var thisUser = {
+    const thisUser = {
       uid           : currentUser.uid,
       displayName   : currentUser.displayName || currentUser.email.split('@')[0],
       email         : currentUser.email,
@@ -32,7 +31,7 @@ firebase.auth().onAuthStateChanged(function(currentUser) {
     store.setUser(thisUser)
 
     // now that we have a user, let's listen for child events on '/user/<uid>/img/*'
-    var imgRef = firebase.database().ref('/user/' + currentUser.uid)
+    const imgRef = firebase.database().ref('/user/' + currentUser.uid)
     imgRef.on('child_added', function(data) {
       console.log('data.val():', data.val())
       store.imgChanged(data.key, data.val())
@@ -46,7 +45,7 @@ firebase.auth().onAuthStateChanged(function(currentUser) {
   }
   else {
     // turn off notifications if the user was logged in
-    var thisUser = store.getUser()
+    const thisUser = store.getUser()
     if ( thisUser ) {
       firebase.database().ref('user/' + thisUser.uid).off()
     }

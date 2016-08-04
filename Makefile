@@ -1,6 +1,14 @@
 PATH := node_modules/.bin:${PATH}
 
-build: clean public html browserify
+# See: http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
+
+make-help:
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
+
+build: clean eslint public html browserify
+
+eslint:
+	eslint src/js/*.js
 
 public:
 	mkdir -p public/img

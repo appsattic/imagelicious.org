@@ -80,11 +80,16 @@ ReactJS on the client and JavaScript in many other areas. Please get in touch if
 
 ## Author ##
 
-Andrew Chilton:
+Andrew Chilton ([email](andychilton@gmail.com)):
 
 * [Andrew Chilton's Blog](https://chilts.org/)
 * [andychilton on Twitter](https://twitter.com/andychilton)
 * [chilts on GitHub](https://github.com/chilts)
+
+AppsAttic:
+
+* [AppsAttic Website](http://appsattic.com/)
+* [appsattic](http://appsattic.com/)
 
 ## License ##
 

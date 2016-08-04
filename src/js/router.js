@@ -22,10 +22,12 @@ var router = new HashiRouter({
 })
 router.add('gallery/:pageNum', (pageNum) => {
   // always gives a number, even zero (for empty strings or anything else)
-  pageNum = pageNum | 0
+  pageNum |= 0 // eslint-disable-line no-bitwise
+
 
   if ( pageNum === 0 ) {
-    return window.location.hash = 'gallery/1'
+    window.location.hash = 'gallery/1'
+    return
   }
 
   store.init('gallery', { pageNum : pageNum })

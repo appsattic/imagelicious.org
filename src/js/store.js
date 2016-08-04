@@ -54,7 +54,7 @@ var store = {
 
     // if we're on an `#img/$imgId` page, then we should load up the image
     if ( page === 'img' ) {
-      let imgId = args.imgId
+      const imgId = args.imgId
 
       // ToDo: check to see if this `img` is already loaded up
       if ( imgId in this.cache ) {
@@ -71,7 +71,7 @@ var store = {
       if ( imgId in this.imgs ) {
         console.log('found it')
         // just get a skeleton `img` for the `this.cache`
-        let img = {
+        const img = {
           imgId : imgId,
           downloadUrl : this.imgs[imgId].downloadUrl,
         }
@@ -89,9 +89,9 @@ var store = {
       this.setImg(null) // "Loading ..."
 
       // get a reference to this image from it's Google Storage location : https://firebase.google.com/docs/storage/web/download-files
-      let url = 'gs://' + cfg.firebase.storageBucket + '/img/' + imgId
-      let ref = firebase.storage().refFromURL(url)
-      let p = ref.getDownloadURL()
+      const url = 'gs://' + cfg.firebase.storageBucket + '/img/' + imgId
+      const ref = firebase.storage().refFromURL(url)
+      const p = ref.getDownloadURL()
       p.then((downloadUrl) => {
         console.log('*** downloadUrl=' + downloadUrl)
         this.setImg({
