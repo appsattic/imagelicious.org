@@ -117,12 +117,6 @@ var Status = React.createClass({
     var store = this.props.store
     store.setFilter(parent, child)
   },
-  onClickVisibility(parent, child, ev) {
-    ev.preventDefault()
-    ev.stopPropagation()
-    var store = this.props.store
-    store.setFilter(parent, child)
-  },
   render() {
     var store = this.props.store
     var user = store.getUser()
@@ -167,17 +161,6 @@ var Status = React.createClass({
                 <input type="file" id="file" name="file" onChange={ this.onChange } multiple={ true } style={ { display: 'none' } }/>
                 <a className="button is-success" onClick={ this.onClickUpload }>Upload Images</a>
               </p>
-              <p className="level-item">Filter:</p>
-              {
-                Object.keys(filters.visibility).map((title, i) => {
-                  if ( filters.visibility[title] ) {
-                    return <p key={ 'msg-' + i } className="level-item"><strong>{ title }</strong></p>
-                  }
-                  return <p key={ 'msg-' + i } onClick={ this.onClickVisibility.bind(this, 'visibility', title) } className="level-item"><a>{ title }</a></p>
-                })
-              }
-
-              <p className="level-item">|</p>
               <p className="level-item">Sort:</p>
               {
                 Object.keys(filters.sort).map((title, i) => {
@@ -377,17 +360,16 @@ var GalleryPage = React.createClass({
 
     // Filtering and Sorting:
     //
-    // 1. filter in/out all/public/private images
-    // 2. filter in/out any currently selected tag
-    // 3. sort by Newest/Oldest
-    // 4. slice depending on page number
+    // 1. filter in/out any currently selected tag
+    // 2. sort by Newest/Oldest
+    // 3. slice depending on page number
 
     // get all of the images into `showImgs` for filtering/sorting
     const imgs = store.getImgs()
     const imgKeys = Object.keys(imgs)
     let showImgs = imgKeys.map((key) => imgs[key])
 
-    // 3. sort by Newest/Oldest
+    // 2. sort by Newest/Oldest
     // get the full set of image data in an array
     const order = filters.sort['Newest First'] ? 1 : -1
     showImgs = showImgs.sort((a, b) => {

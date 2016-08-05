@@ -16,11 +16,6 @@ var store = {
   msgs : [],
   imgs : {},
   filter : {
-    visibility : {
-      'All'     : true,
-      'Public'  : false,
-      'Private' : false,
-    },
     sort : {
       'Newest First' : true,
       'Oldest First' : false,
