@@ -369,6 +369,9 @@ var GalleryPage = React.createClass({
     const imgKeys = Object.keys(imgs)
     let showImgs = imgKeys.map((key) => imgs[key])
 
+    // 1. filter in/out any currently selected tag
+    // ToDo: ...!
+
     // 2. sort by Newest/Oldest
     // get the full set of image data in an array
     const order = filters.sort['Newest First'] ? 1 : -1
@@ -378,6 +381,11 @@ var GalleryPage = React.createClass({
       if ( a.inserted > b.inserted ) return -order
       return 0
     })
+
+    // 3. slice depending on page number
+    const start = (pageNum - 1) * cfg.imgsPerPage
+    const end = pageNum * cfg.imgsPerPage
+    showImgs = showImgs.slice(start, end)
 
     // -- Pagination --
     // From: http://bulma.io/documentation/components/pagination/
