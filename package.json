@@ -12,7 +12,7 @@
     "envify": "^3.4.1",
     "eslint": "^3.1.1",
     "eslint-plugin-react": "^5.2.2",
-    "firebase-tools": "^3.0.4",
+    "firebase-tools": "^3.0.6",
     "hashirouter": "^1.1.0",
     "uglify-js": "^2.7.0"
   },
