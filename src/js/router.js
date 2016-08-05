@@ -18,7 +18,7 @@ var store = require('./store.js')
 //
 var router = new HashiRouter({
   def : 'gallery/1',
-  debug : true,
+  debug : false,
 })
 router.add('gallery/:pageNum', (pageNum) => {
   // always gives a number, even zero (for empty strings or anything else)
