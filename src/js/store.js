@@ -15,6 +15,17 @@ var store = {
   user : null,
   msgs : [],
   imgs : {},
+  filter : {
+    visibility : {
+      'All'     : true,
+      'Public'  : false,
+      'Private' : false,
+    },
+    sort : {
+      'Newest First' : true,
+      'Oldest First' : false,
+    },
+  },
   img  : null,
   cache : {},
   listeners : [],
@@ -45,7 +56,7 @@ var store = {
       return
     }
 
-    // if we're on the '#sign-in', 
+    // if we're on the '#sign-in'
     if ( page === 'sign-in' ) {
       // nothing to do here
       this.notify()
@@ -142,7 +153,7 @@ var store = {
 
   imgChanged : function imgChanged(key, val) {
     // save the key in the val object too
-    val[key] = key
+    val.key = key
     this.imgs[key] = val
     this.notify()
   },
@@ -183,6 +194,35 @@ var store = {
     return this.img
   },
 
+  getFilters : function getFilters() {
+    return this.filter
+  },
+
+  getFilter : function getFilter(parent, child) {
+    if ( !(parent in this.filter) ) {
+      throw new Error("store.getFilter() - Unknown parent : " + parent)
+    }
+    if ( !(child in this.filter[parent] ) ) {
+      throw new Error("store.getFilter() - Unknown parent/child : " + parent + '/' + child)
+    }
+    return this.filter[parent][child]
+  },
+
+  setFilter : function setFilter(parent, child) {
+    if ( !(parent in this.filter) ) {
+      throw new Error("store.filter() - Unknown parent : " + parent)
+    }
+    if ( !(child in this.filter[parent] ) ) {
+      throw new Error("store.filter() - Unknown parent/child : " + parent + '/' + child)
+    }
+    // reset all other children
+    Object.keys(this.filter[parent]).forEach((key) => {
+      this.filter[parent][key] = false
+    })
+    this.filter[parent][child] = true
+    this.notify()
+  },
+
   listen: function listen(fn) {
     this.listeners.push(fn)
   },
@@ -209,7 +249,14 @@ var store = {
     this.msgs = []
     this.imgs = {}
     this.cache = {}
+    this.filter = {
+      sort : {
+        'Newest First' : true,
+        'Oldest First' : false,
+      },
+    }
   },
+
 }
 
 // --------------------------------------------------------------------------------------------------------------------

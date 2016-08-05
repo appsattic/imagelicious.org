@@ -81,16 +81,13 @@ var Status = React.createClass({
     //   type             : "image/png",
     // }
 
-    console.log('Files = ' + ev.target.files.length)
     for( let i = 0; i < ev.target.files.length; i++ ) {
-      console.log('(' + i + ') file:', ev.target.files[i])
       uploadImage(store, ev.target.files[i], function(err, res) {
         if (err) {
           store.addMsg('' + err)
           return
         }
         // if everything went well, we don't need to do anything
-        console.log('Image uploaded')
       })
     }
   },
@@ -113,6 +110,18 @@ var Status = React.createClass({
         store.addError(err.message)
       }
     )
+  },
+  onClickSort(parent, child, ev) {
+    ev.preventDefault()
+    ev.stopPropagation()
+    var store = this.props.store
+    store.setFilter(parent, child)
+  },
+  onClickVisibility(parent, child, ev) {
+    ev.preventDefault()
+    ev.stopPropagation()
+    var store = this.props.store
+    store.setFilter(parent, child)
   },
   render() {
     var store = this.props.store
@@ -141,6 +150,7 @@ var Status = React.createClass({
     }
 
     var count = store.countImgs()
+    var filters = store.getFilters()
 
     // yes, logged in
     return (
@@ -158,10 +168,25 @@ var Status = React.createClass({
                 <a className="button is-success" onClick={ this.onClickUpload }>Upload Images</a>
               </p>
               <p className="level-item">Filter:</p>
-              <p className="level-item"><strong>All</strong></p>
-              <p className="level-item"><a>Published</a></p>
-              <p className="level-item"><a>Drafts</a></p>
-              <p className="level-item"><a>Public</a></p>
+              {
+                Object.keys(filters.visibility).map((title, i) => {
+                  if ( filters.visibility[title] ) {
+                    return <p key={ 'msg-' + i } className="level-item"><strong>{ title }</strong></p>
+                  }
+                  return <p key={ 'msg-' + i } onClick={ this.onClickVisibility.bind(this, 'visibility', title) } className="level-item"><a>{ title }</a></p>
+                })
+              }
+
+              <p className="level-item">|</p>
+              <p className="level-item">Sort:</p>
+              {
+                Object.keys(filters.sort).map((title, i) => {
+                  if ( filters.sort[title] ) {
+                    return <p key={ 'msg-' + i } className="level-item"><strong>{ title }</strong></p>
+                  }
+                  return <p key={ 'msg-' + i } onClick={ this.onClickSort.bind(this, 'sort', title) } className="level-item"><a>{ title }</a></p>
+                })
+              }
             </div>
             <div className="level-right">
               <p className="level-item"><strong>{ user.email }</strong></p>
@@ -273,18 +298,12 @@ var Pagination = React.createClass({
     perPage : React.PropTypes.number.isRequired,
   },
   render() {
-    var pageNum = this.props.pageNum
-    var total = this.props.total
-    var perPage = this.props.perPage
-
-    console.log('&&& 1')
+    const { pageNum, total, perPage } = this.props
 
     // calculate some things related to the first/prev/next/last
     var totalPages = Math.ceil(total / perPage)
     var isFirst = pageNum === 1
     var isLast  = pageNum === totalPages
-
-    console.log('&&& 2', isFirst, isLast)
 
     var first = (
       <a
@@ -344,29 +363,49 @@ var GalleryPage = React.createClass({
     store : React.PropTypes.object.isRequired,
   },
   render() {
-    var store = this.props.store
-    var user = store.getUser()
-    var args = store.getArgs()
+    const store = this.props.store
+    const user = store.getUser()
 
+    // if there is no user, then don't show any gallery
     if ( !user ) {
-      return <div />
+      return <div>Please sign in.</div>
     }
 
-    var pageNum = args.pageNum
+    const args = store.getArgs()
+    const filters = store.getFilters()
+    let pageNum = args.pageNum
 
-    // show the logged in user all of their images
+    // Filtering and Sorting:
+    //
+    // 1. filter in/out all/public/private images
+    // 2. filter in/out any currently selected tag
+    // 3. sort by Newest/Oldest
+    // 4. slice depending on page number
+
+    // get all of the images into `showImgs` for filtering/sorting
     const imgs = store.getImgs()
-    const imgKeys = Object.keys(imgs).sort()
+    const imgKeys = Object.keys(imgs)
+    let showImgs = imgKeys.map((key) => imgs[key])
+
+    // 3. sort by Newest/Oldest
+    // get the full set of image data in an array
+    const order = filters.sort['Newest First'] ? 1 : -1
+    showImgs = showImgs.sort((a, b) => {
+      // From: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+      if ( a.inserted < b.inserted ) return order
+      if ( a.inserted > b.inserted ) return -order
+      return 0
+    })
 
     // -- Pagination --
     // From: http://bulma.io/documentation/components/pagination/
 
     // let's filter the pagination based on the filters available
 
-    let columns = imgKeys.reverse().map(function(key) {
+    let columns = showImgs.map(function(img) {
       return (
-        <div key={ key } className="column is-one-quarter">
-          <ThumbnailImage imgId={ key } img={ imgs[key] } />
+        <div key={ img.key } className="column is-one-quarter">
+          <ThumbnailImage imgId={ img.key } img={ img } />
         </div>
       )
     })
@@ -392,8 +431,6 @@ var ImgPage = React.createClass({
   render() {
     var store = this.props.store
     var img = store.getImg()
-
-    console.log('ImgPage.render(): img=', img)
 
     if ( img === null ) {
       return <div>Loading...</div>
@@ -446,8 +483,6 @@ var Page = React.createClass({
 
     // render a logged in page
     var page = store.getPage()
-
-    console.log('Page:render() - page=' + page)
 
     if ( page === 'sign-in' ) {
       return <SignInPage store={ store } />
