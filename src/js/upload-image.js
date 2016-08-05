@@ -30,7 +30,8 @@ function uploadImage(store, file, callback) {
   var storage = firebase.storage()
   var fileRef = storage.ref().child('img/' + imgRef.key)
 
-  store.imgChanged(imgRef.key, { state : 'uploading', progress : 0 })
+  var now = Date.now()
+  store.imgChanged(imgRef.key, { state : 'uploading', progress : 0, inserted : now })
 
   // file metadata : https://firebase.google.com/docs/storage/web/file-metadata
   var uploadTask = fileRef.put(file, {
@@ -50,10 +51,10 @@ function uploadImage(store, file, callback) {
 
       switch (snapshot.state) {
       case firebase.storage.TaskState.RUNNING: // or 'running'
-        store.imgChanged(imgRef.key, { state : 'uploading', progress : progress })
+        store.imgChanged(imgRef.key, { state : 'uploading', progress : progress, inserted : now })
         break
       case firebase.storage.TaskState.PAUSED: // or 'paused'
-        store.imgChanged(imgRef.key, { state : 'paused', progress : progress })
+        store.imgChanged(imgRef.key, { state : 'paused', progress : progress, inserted : now })
         break
       default:
         console.log('- Unknown shapshot.state:', snapshot.state)
@@ -61,7 +62,7 @@ function uploadImage(store, file, callback) {
     },
     function(err) {
       // something went wrong with the upload
-      store.imgChanged(imgRef.key, { state : 'error', msg : '' + err })
+      store.imgChanged(imgRef.key, { state : 'error', msg : '' + err, inserted : now })
 
       switch (err.code) {
       case 'storage/unauthorized':
@@ -87,7 +88,7 @@ function uploadImage(store, file, callback) {
 
       // We can cheat here and start showing the image already, since the upload has finished - no need to wait for
       // the 'database' imgRef to save and then be notified back.
-      store.imgChanged(imgRef.key, { state : 'saving-metadata', downloadUrl : uploadTask.snapshot.downloadURL })
+      store.imgChanged(imgRef.key, { state : 'saving-metadata', downloadUrl : uploadTask.snapshot.downloadURL, inserted : now })
 
       // firstly, get the metadata from the file back
       fileRef.getMetadata().then(function(metadata) {
