@@ -38,34 +38,11 @@ var Status = React.createClass({
   propTypes: {
     store : React.PropTypes.object.isRequired,
   },
-  signIn(ev) {
+  onClickUpload(ev) {
     ev.preventDefault()
-
-    var store = this.props.store
-
-    var provider = new firebase.auth.GoogleAuthProvider()
-    var p = firebase.auth().signInWithRedirect(provider)
-    p.then((result) => {
-      // This gives you a Google Access Token. You can use it to access the Google API.
-      // var token = result.credential.accessToken
-      // The signed-in user info.
-      // var user = result.user
-      // ...
-      console.log('signIn() - result:', result)
-    }).catch((err) => {
-      // Handle Errors here.
-      // var errorCode = error.code
-      // var errorMessage = error.message
-      // The email of the user's account used.
-      // var email = error.email
-      // The firebase.auth.AuthCredential type that was used.
-      // var credential = error.credential
-
-      // add this err to the messages
-      store.addError(err.message)
-    })
+    document.getElementById('file').click()
   },
-  onChange(ev) {
+  onChangeFile(ev) {
     ev.preventDefault()
 
     // our own store
@@ -91,26 +68,6 @@ var Status = React.createClass({
       })
     }
   },
-  onClickUpload(ev) {
-    ev.preventDefault()
-    document.getElementById('file').click()
-  },
-  signOut(ev) {
-    ev.preventDefault()
-
-    var store = this.props.store
-
-    var p = firebase.auth().signOut()
-    p.then(
-      () => {
-        // refresh the page so all data is emptied
-        window.location = ''
-      },
-      (err) => {
-        store.addError(err.message)
-      }
-    )
-  },
   onClickSort(parent, child, ev) {
     ev.preventDefault()
     ev.stopPropagation()
@@ -118,63 +75,53 @@ var Status = React.createClass({
     store.setFilter(parent, child)
   },
   render() {
-    var store = this.props.store
-    var user = store.getUser()
+    const store = this.props.store
+    const count = store.countImgs()
+    const filters = store.getFilters()
 
-    // status unknown
-    if ( user === null ) {
-      return <p>Loading...</p>
-    }
+    const page = store.getPage()
 
-    // not logged in
-    if ( user === false ) {
-      return (
-        <section className="section">
-          <div className="container">
-            <nav className="level">
-              <div className="level-left">
-              </div>
-              <div className="level-right">
-                <p className="level-item"><a href="#" onClick={ this.signIn }>Sign in with Google</a></p>
-              </div>
-            </nav>
+    let left, right
+    if ( page === 'gallery' ) {
+      left = (
+        <div className="level-left">
+          <div className="level-item">
+            <p className="subtitle is-5">
+              <strong>{ count }</strong> image(s)
+            </p>
           </div>
-        </section>
+          <p className="level-item">
+            <input type="file" id="file" name="file" onChange={ this.onChangeFile } multiple={ true } style={ { display: 'none' } }/>
+            <a className="button is-success" onClick={ this.onClickUpload }>Upload Images</a>
+          </p>
+        </div>
+      )
+      right = (
+        <div className="level-right">
+           <p className="level-item">Sort:</p>
+           {
+             Object.keys(filters.sort).map((title, i) => {
+               if ( filters.sort[title] ) {
+                 return <p key={ 'msg-' + i } className="level-item"><strong>{ title }</strong></p>
+               }
+               return <p key={ 'msg-' + i } onClick={ this.onClickSort.bind(this, 'sort', title) } className="level-item"><a>{ title }</a></p>
+             })
+           }
+        </div>
       )
     }
-
-    var count = store.countImgs()
-    var filters = store.getFilters()
+    else {
+      left = <div className="level-left" />
+      right = <div className="level-right" />
+    }
 
     // yes, logged in
     return (
       <section className="section">
         <div className="container">
           <nav className="level">
-            <div className="level-left">
-              <div className="level-item">
-                <p className="subtitle is-5">
-                  <strong>{ count }</strong> image(s)
-                </p>
-              </div>
-              <p className="level-item">
-                <input type="file" id="file" name="file" onChange={ this.onChange } multiple={ true } style={ { display: 'none' } }/>
-                <a className="button is-success" onClick={ this.onClickUpload }>Upload Images</a>
-              </p>
-              <p className="level-item">Sort:</p>
-              {
-                Object.keys(filters.sort).map((title, i) => {
-                  if ( filters.sort[title] ) {
-                    return <p key={ 'msg-' + i } className="level-item"><strong>{ title }</strong></p>
-                  }
-                  return <p key={ 'msg-' + i } onClick={ this.onClickSort.bind(this, 'sort', title) } className="level-item"><a>{ title }</a></p>
-                })
-              }
-            </div>
-            <div className="level-right">
-              <p className="level-item"><strong>{ user.email }</strong></p>
-              <p className="level-item"><a href="#" onClick={ this.signOut }>Sign Out</a></p>
-            </div>
+            { left }
+            { right }
           </nav>
         </div>
       </section>
@@ -497,32 +444,97 @@ var Page = React.createClass({
 })
 
 var TopBar = React.createClass({
+  signIn(ev) {
+    ev.preventDefault()
+
+    var store = this.props.store
+
+    var provider = new firebase.auth.GoogleAuthProvider()
+    var p = firebase.auth().signInWithRedirect(provider)
+    p.then((result) => {
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      // var token = result.credential.accessToken
+      // The signed-in user info.
+      // var user = result.user
+      // ...
+      console.log('signIn() - result:', result)
+    }).catch((err) => {
+      // Handle Errors here.
+      // var errorCode = error.code
+      // var errorMessage = error.message
+      // The email of the user's account used.
+      // var email = error.email
+      // The firebase.auth.AuthCredential type that was used.
+      // var credential = error.credential
+
+      // add this err to the messages
+      store.addError(err.message)
+    })
+  },
+  signOut(ev) {
+    ev.preventDefault()
+
+    var store = this.props.store
+
+    var p = firebase.auth().signOut()
+    p.then(
+      () => {
+        // refresh the page so all data is emptied
+        window.location = ''
+      },
+      (err) => {
+        store.addError(err.message)
+      }
+    )
+  },
   render() {
+    var store = this.props.store
+    var user = store.getUser()
+
+    var right
+    // status unknown
+    if ( user === null ) {
+      right = (
+        <div className="nav-right nav-menu">
+          <span className="nav-item">Loading...</span>
+        </div>
+      )
+    }
+    else if ( user === false ) {
+      right = (
+        <div className="nav-right nav-menu">
+          <a className="nav-item" href="#sign-in" onClick={ this.signIn }>
+            Sign in using Google
+          </a>
+        </div>
+      )
+    }
+    else {
+      // yes, we have a user
+      right = (
+        <div className="nav-right nav-menu">
+          <a className="nav-item" href="#settings">
+            { user.email }
+          </a>
+          <a className="nav-item" href="#sign-out" onClick={ this.signOut }>
+            Sign Out
+          </a>
+        </div>
+      )
+    }
+
     return (
-      <section className="hero is-primary is-medium">
+      <section className="hero is-primary">
         <div className="hero-head">
-          <header className="nav">
-            <div className="container">
+          <div className="container">
+            <nav className="nav">
               <div className="nav-left">
-                <a className="nav-item" href="/#about">
+                <a className="nav-item is-brand" href="/#gallery/1">
                   <img src="/img/logo-48x36.png" alt="Logo" />
                   imagelicious.org
                 </a>
-              </div>
-              <span className="nav-toggle">
-                <span></span>
-                <span></span>
-                <span></span>
-              </span>
-              <div className="nav-right nav-menu">
-                <a className="nav-item is-active" href="#gallery/1">
-                  Home
-                </a>
-                <a className="nav-item" href="/#docs">
+                <a className="nav-item" href="#docs">
                   Docs
-                </a>
-                <a className="nav-item" href="/#examples">
-                  Examples
                 </a>
                 <span className="nav-item">
                   <a href="https://github.com/appsattic/imagelicious.org" className="button is-primary is-inverted">
@@ -533,8 +545,14 @@ var TopBar = React.createClass({
                   </a>
                 </span>
               </div>
-            </div>
-          </header>
+              <span className="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+              </span>
+              { right }
+            </nav>
+          </div>
         </div>
       </section>
     )
@@ -636,7 +654,7 @@ var App = React.createClass({
 
     return (
       <div>
-        <TopBar />
+        <TopBar store={ store } />
         <Hero store={ store } />
         <MsgList msgs={ store.getMsgs() } />
         <Status store={ store } />
