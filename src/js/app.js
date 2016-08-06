@@ -231,57 +231,58 @@ var Pagination = React.createClass({
     const { pageNum, total, perPage } = this.props
 
     // calculate some things related to the first/prev/next/last
-    var totalPages = Math.ceil(total / perPage)
-    var isFirst = pageNum === 1
-    var isLast  = pageNum === totalPages
+    const totalPages = Math.ceil(total / perPage)
+    const isFirst = pageNum === 1
+    const isLast  = pageNum === totalPages
 
-    var first = (
+    const first = (
       <a
         href="#gallery/1"
         className={ 'button' + (isFirst ? ' is-disabled' : '') }
       >&laquo;</a>
     )
-    var prev = (
+    const prev = (
       <a
         href={ "#gallery/" + ( pageNum - 1 ) }
         className={ 'button' + (isFirst ? ' is-disabled' : '') }
       >&lt;</a>
     )
-    var next = (
+    const next = (
       <a
         href={ "#gallery/" + ( pageNum + 1 ) }
         className={ 'button' + (isLast ? ' is-disabled' : '') }
       >&gt;</a>
     )
-    var last = (
+    const last = (
       <a
         href={ "#gallery/" + totalPages }
         className={ 'button' + (isLast ? ' is-disabled' : '') }
       >&raquo;</a>
     )
 
-    var pages = []
+    const pages = []
     for(let p = 1; p <= totalPages; p++) {
       pages.push(
-        <li>
-          <a
-            href={ "#gallery/" + p }
-            className={ 'button' + (p === pageNum ? ' is-disabled' : '') }
-          >{ p }</a>
-        </li>
+        <a href={ "#gallery/" + p } className={ 'button' + (p === pageNum ? ' is-disabled' : '') }>
+          { p }
+        </a>
       )
     }
+
+    const items = [
+      first,
+      prev,
+      ...pages,
+      next,
+      last,
+    ]
 
     return (
       <nav className="pagination">
         <ul>
-          <li>{ first }</li>
-          <li>{ prev }</li>
-          <li></li>
-          { pages }
-          <li></li>
-          <li>{ next }</li>
-          <li>{ last }</li>
+          {
+            items.map((item, i) => <li key={ i }>{ item }</li>)
+          }
         </ul>
       </nav>
     )
