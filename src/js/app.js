@@ -184,9 +184,15 @@ var ThumbnailImage = React.createClass({
     }
 
     return (
-      <article className="tile is-child box">
+      <article className="r-thumbnail-image tile is-child box">
         <figure className="image is-4by3">
           <a href={ '#img/' + imgId }><img src={ img.downloadUrl } /></a>
+          <p className="btns btns-tl">
+            <a className="button is-primary"><span className="icon" style={{ marginLeft: 0 }}><i className="fa fa-pencil"></i></span></a>
+          </p>
+          <p className="btns btns-tr">
+            <a className="button is-primary"><span className="icon" style={{ marginLeft: 0 }}><i className="fa fa-trash"></i></span></a>
+          </p>
         </figure>
         <p style={{ fontSize: '18px' }} className="title">{ img.filename }</p>
         <p style={{ fontSize: '12px' }} className="subtitle">{ img.contentType }</p>

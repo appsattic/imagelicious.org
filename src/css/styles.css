@@ -1,3 +1,28 @@
 nav.pagination {
   margin-bottom: 20px;
 }
+
+.r-thumbnail-image figure {
+    position: relative;
+}
+
+.r-thumbnail-image .btns {
+    visibility : hidden;
+    display    : block;
+    position   : absolute;
+    top        : 20px;
+    right      : 20px;
+    color      : red;
+}
+
+.r-thumbnail-image:hover .btns {
+    visibility : visible;
+}
+
+.r-thumbnail-image .btns-tr {
+    right : 20px;
+}
+
+.r-thumbnail-image .btns-tl {
+    left  : 20px;
+}
