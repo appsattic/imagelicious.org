@@ -9,6 +9,7 @@ var React = require('react')
 var cfg = require('./cfg.js')
 var firebase = require('./firebase.js')
 var uploadImage = require('./upload-image.js')
+var slugitAll = require('./slugit-all.js')
 
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -131,18 +132,25 @@ var Status = React.createClass({
 
 var ThumbnailImage = React.createClass({
   propTypes: {
+    store : React.PropTypes.object.isRequired,
     imgId : React.PropTypes.string.isRequired,
     img   : React.PropTypes.object.isRequired,
   },
+  onClickEdit(img, ev) {
+    ev.preventDefault()
+    ev.stopPropagation()
+
+    const { store } = this.props
+    store.setEdit(img)
+  },
   render() {
-    var imgId = this.props.imgId
-    var img   = this.props.img
+    const { imgId, img } = this.props
 
     if ( img.state === 'uploading' ) {
       return (
         <article className="tile is-child box">
-          <p style={{ fontSize: '18px' }} className="title">Uploading...</p>
-          <p style={{ fontSize: '12px' }} className="subtitle">Progress: { img.progress }%</p>
+          <h5 className="title is-5">Uploading...</h5>
+          <h6 className="subtitle is-6">Progress: { img.progress }%</h6>
           <progress max="100" value={ img.progress } style={ { width: "100%" } } />
         </article>
       )
@@ -151,8 +159,8 @@ var ThumbnailImage = React.createClass({
     if ( img.state === 'paused' ) {
       return (
         <article className="tile is-child box">
-          <p style={{ fontSize: '18px' }} className="title">Paused</p>
-          <p style={{ fontSize: '12px' }} className="subtitle">Progress: { img.progress }%</p>
+          <h5 className="title is-5">Paused</h5>
+          <h6 className="subtitle is-6">Progress: { img.progress }%</h6>
           <progress max="100" value={ img.progress } style={ { width: "100%" } } />
         </article>
       )
@@ -161,8 +169,8 @@ var ThumbnailImage = React.createClass({
     if ( img.state === 'error' ) {
       return (
         <article className="tile is-child box">
-          <p style={{ fontSize: '18px' }} className="title">Error</p>
-          <p style={{ fontSize: '12px' }} className="subtitle">{ img.msg }</p>
+          <h5 className="title is-5">Error</h5>
+          <h6 className="subtitle is-6">{ img.msg }</h6>
         </article>
       )
     }
@@ -177,8 +185,8 @@ var ThumbnailImage = React.createClass({
               </figure>
             : null
           }
-          <p style={{ fontSize: '18px' }} className="title">Saving metadata...</p>
-          <p style={{ fontSize: '12px' }} className="subtitle">Progress: Complete</p>
+          <h5 className="title is-5">Saving metadata...</h5>
+          <h6 className="subtitle is-6">Progress: Complete</h6>
         </article>
       )
     }
@@ -188,14 +196,14 @@ var ThumbnailImage = React.createClass({
         <figure className="image is-4by3">
           <a href={ '#img/' + imgId }><img src={ img.downloadUrl } /></a>
           <p className="btns btns-tl">
-            <a className="button is-primary"><span className="icon" style={{ marginLeft: 0 }}><i className="fa fa-pencil"></i></span></a>
+            <a className="button is-primary" onClick={ this.onClickEdit.bind(this, img) }><span className="icon" style={{ marginLeft: 0 }}><i className="fa fa-pencil"></i></span></a>
           </p>
           <p className="btns btns-tr">
             <a className="button is-primary"><span className="icon" style={{ marginLeft: 0 }}><i className="fa fa-trash"></i></span></a>
           </p>
         </figure>
-        <p style={{ fontSize: '18px' }} className="title">{ img.filename }</p>
-        <p style={{ fontSize: '12px' }} className="subtitle">{ img.contentType }</p>
+        <h5 className="title is-5">{ img.title }</h5>
+        <h6 className="subtitle is-6">{ img.contentType }</h6>
       </article>
     )
   }
@@ -349,7 +357,7 @@ var GalleryPage = React.createClass({
     let columns = showImgs.map(function(img) {
       return (
         <div key={ img.key } className="column is-one-quarter">
-          <ThumbnailImage imgId={ img.key } img={ img } />
+          <ThumbnailImage store={ store } imgId={ img.key } img={ img } />
         </div>
       )
     })
@@ -364,6 +372,30 @@ var GalleryPage = React.createClass({
           </div>
         </div>
       </section>
+    )
+  }
+})
+
+var TagInput = React.createClass({
+  propTypes: {
+    value    : React.PropTypes.string.isRequired,
+    onChange : React.PropTypes.func.isRequired,
+  },
+  render() {
+    var tags = slugitAll(this.props.value)
+
+    return (
+      <div>
+        <p className="control">
+          <input className="input" type="text" placeholder="Comma separated tags" value={ this.props.value } onChange={ this.props.onChange } />
+        </p>
+        <p>
+          <span>Tag Preview: </span>
+          {
+            tags.map((t) => <span key={ t }><span className="tag is-primary">{ t }</span>{ ' ' }</span>)
+          }
+        </p>
+      </div>
     )
   }
 })
@@ -395,8 +427,6 @@ var ImgPage = React.createClass({
             <figure className="image is-4by3">
               <img src={ img.downloadUrl } />
             </figure>
-            <p style={{ fontSize: '18px' }} className="title">{ img.filename }</p>
-            <p style={{ fontSize: '12px' }} className="subtitle">{ img.contentType }</p>
           </article>
         </div>
       </section>
@@ -633,6 +663,108 @@ var Social = React.createClass({
   },
 })
 
+var EditModal = React.createClass({
+  propTypes: {
+    store : React.PropTypes.object.isRequired,
+  },
+  getInitialState() {
+    const edit = this.props.store.getEdit()
+    return {
+      state : 'editing',
+      title : edit.title,
+      desc  : edit.desc,
+      tag   : edit.tag,
+    }
+  },
+  onClickCloseModal(ev) {
+    ev.preventDefault()
+    ev.stopPropagation()
+
+    const { store } = this.props
+    store.setEdit(null)
+  },
+  onClickSave(ev) {
+    ev.preventDefault()
+    ev.stopPropagation()
+
+    const { store } = this.props
+    const edit = store.getEdit()
+    console.log('edit:', edit)
+    console.log('edit.key=', edit.key)
+
+    // set the state of this modal to 'saving'
+    this.setState({ state : 'saving' })
+
+    // firebase.auth() so we can get the currentUser
+    var auth = firebase.auth()
+    var currentUser = auth.currentUser
+
+    // ok, let's save this new metadata
+    var dbRef = firebase.database().ref()
+    var userRef = dbRef.child('user/' + currentUser.uid)
+    var imgRef = userRef.child(edit.key)
+    var obj = {
+      title   : this.state.title,
+      desc    : this.state.desc,
+      tag     : this.state.tag,
+      updated : firebase.database.ServerValue.TIMESTAMP,
+    }
+    console.log('obj:', obj)
+    imgRef.update(obj).then(() => {
+      console.log('imgRef.set: saved')
+      // this will close the modal
+      store.setEdit(null)
+    }, (err) => {
+      console.log('imgRef.set: err:', err)
+      this.setState({ state : 'editing' })
+    })
+  },
+  onChange(field, ev) {
+    ev.preventDefault()
+    ev.stopPropagation()
+
+    var newState = {}
+    newState[field] = ev.target.value
+    this.setState(newState)
+  },
+  render() {
+    var saveClass = "button is-primary" + ( this.state.state === 'saving' ? ' is-disabled' : '')
+
+    return (
+      <div className="modal is-active">
+        <div className="modal-background" onClick={ this.onClickCloseModal }></div>
+        <div className="modal-card">
+          <header className="modal-card-head">
+            <p className="modal-card-title">Edit Image</p>
+            <button className="delete" onClick={ this.onClickCloseModal }></button>
+          </header>
+          <section className="modal-card-body">
+            <div className="content">
+              <label className="label">Title</label>
+              <p className="control">
+                <input className="input" type="text" placeholder="Title ..." value={ this.state.title } onChange={ this.onChange.bind(this, 'title') }/>
+              </p>
+              <label className="label">Description</label>
+              <p className="control">
+                <textarea className="textarea" placeholder="Description ..." value={ this.state.desc } onChange={ this.onChange.bind(this, 'desc') } />
+              </p>
+              <label className="label">Tag String</label>
+              <TagInput value={ this.state.tag || '' } onChange={ this.onChange.bind(this, 'tag') } />
+            </div>
+          </section>
+          <footer className="modal-card-foot">
+            <a className={ saveClass } onClick={ this.onClickSave }>
+              { this.state.state === 'saving' ? <span className="icon"><i className="fa fa-spinner fa-spin"></i></span> : null }
+              Save
+            </a>
+            <a className="button" onClick={ this.onClickCloseModal }>Cancel</a>
+          </footer>
+        </div>
+      </div>
+    )
+  }
+})
+
 var Footer = React.createClass({
   render() {
     return (
@@ -666,6 +798,9 @@ var App = React.createClass({
         <MsgList msgs={ store.getMsgs() } />
         <Status store={ store } />
         <Page store={ store } />
+        {
+          store.getEdit() && <EditModal store={ store } />
+        }
         <Footer />
       </div>
     )

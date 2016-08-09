@@ -5,6 +5,7 @@
 // local
 var cfg = require('./cfg.js')
 var firebase = require('./firebase.js')
+var slugitAll = require('./slugit-all.js')
 
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -22,6 +23,7 @@ var store = {
     },
   },
   img  : null,
+  edit : null,
   cache : {},
   listeners : [],
 
@@ -179,6 +181,7 @@ var store = {
     // if we have an image, store it in the cache
     if ( img && !(img instanceof Error) ) {
       console.log('yes, we have a proper img, not null, not false and not an error:', img.imgId)
+      img.tags = slugitAll(img.tag)
       this.cache[img.imgId] = img
     }
 
@@ -216,6 +219,15 @@ var store = {
     })
     this.filter[parent][child] = true
     this.notify()
+  },
+
+  setEdit : function setEdit(obj) {
+    this.edit = obj
+    this.notify()
+  },
+
+  getEdit : function getEdit() {
+    return this.edit
   },
 
   listen: function listen(fn) {

@@ -4,21 +4,32 @@
       "$uid": {
         ".read": "auth.uid === $uid",
         "$imgId" : {
-          ".write" : "auth.uid === $uid && !data.exists()",
-          ".validate": "newData.hasChildren(['filename', 'size', 'contentType', 'downloadUrl', 'inserted'])",
-          "filename": {
+          ".write" : "auth.uid === $uid",
+          "title": {
             ".validate": "newData.isString() && newData.val().length > 0"
+          },
+          "desc": {
+            ".validate": "newData.isString()"
+          },
+          "tag": {
+            ".validate": "newData.isString()"
+          },
+          "filename": {
+            ".validate": "!data.exists() && newData.isString() && newData.val().length > 0"
           },
           "size": {
-            ".validate": "newData.isNumber() && newData.val() > 0"
+            ".validate": "!data.exists() && newData.isNumber() && newData.val() > 0"
           },
           "contentType": {
-            ".validate": "newData.isString() && newData.val().length > 0"
+            ".validate": "!data.exists() && newData.isString() && newData.val().length > 0"
           },
           "downloadUrl": {
-            ".validate": "newData.isString() && newData.val().length > 0"
+            ".validate": "!data.exists() && newData.isString() && newData.val().length > 0"
           },
           "inserted": {
+            ".validate": "!data.exists() && newData.val() <= now && newData.val() >= now - 15 * 1000"
+          },
+          "updated": {
             ".validate": "newData.val() <= now && newData.val() >= now - 15 * 1000"
           },
           "$other": {
