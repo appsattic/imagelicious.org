@@ -3,7 +3,6 @@
 "use strict"
 
 // local
-var cfg = require('./cfg.js')
 var firebase = require('./firebase.js')
 var slugitAll = require('./slugit-all.js')
 
@@ -66,53 +65,31 @@ var store = {
 
       // ToDo: check to see if this `img` is already loaded up
       if ( imgId in this.cache ) {
-        console.log('yes, we have this image in the cache' + imgId)
-        console.log(this.cache[imgId])
-        // store.setImg(this.cache[imgId])
         this.img = this.cache[imgId]
         this.notify()
         return
       }
 
       // see if this image is in the users list already
-      console.log('Looking for image ' + imgId + 'in this.imgs ...')
       if ( imgId in this.imgs ) {
-        console.log('found it')
-        // just get a skeleton `img` for the `this.cache`
-        const img = {
-          imgId : imgId,
-          downloadUrl : this.imgs[imgId].downloadUrl,
-        }
+        // get a copy of this image for the cache
+        const img = Object.assign({}, this.imgs[imgId])
         // save into the current image
         this.img = img
         // ... and into the cache
         this.cache[imgId] = img
-        console.log('this.cache:', this.cache)
         this.notify()
         return
       }
 
-      console.log('init is trying to fetch this img:', imgId)
+      this.setImg(null)
 
-      this.setImg(null) // "Loading ..."
-
-      // get a reference to this image from it's Google Storage location : https://firebase.google.com/docs/storage/web/download-files
-      const url = 'gs://' + cfg.firebase.storageBucket + '/img/' + imgId
-      const ref = firebase.storage().refFromURL(url)
-      const p = ref.getDownloadURL()
-      p.then((downloadUrl) => {
-        console.log('*** downloadUrl=' + downloadUrl)
-        this.setImg({
-          imgId : imgId,
-          downloadUrl : downloadUrl,
-        })
-        console.log('after store.setImg()')
-      }).catch((err) => {
-        // Handle any errors
-        console.log('*** Error getting the download URL: ', err)
-        if ( err.code === 'storage/object-not-found' ) {
-          this.setImg(false)
-        }
+      // get this image from the datastore
+      const imgRef = firebase.database().ref().child('img').child(imgId)
+      imgRef.once('value').then((data) => {
+        this.setImg(data.val())
+      }, (err) => {
+        console.log('Error loading info:', err)
       })
     }
 
@@ -176,11 +153,10 @@ var store = {
   // - object - loaded up correctly
   setImg : function setImg(img) {
     this.img = img
-    console.log('setting img:', img)
 
     // if we have an image, store it in the cache
     if ( img && !(img instanceof Error) ) {
-      console.log('yes, we have a proper img, not null, not false and not an error:', img.imgId)
+      // proper image (not null, not false and not an error)
       img.tags = slugitAll(img.tag)
       this.cache[img.imgId] = img
     }

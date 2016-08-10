@@ -14,6 +14,9 @@
           "tag": {
             ".validate": "newData.isString()"
           },
+          "downloadUrl": {
+            ".validate": "!data.exists() && newData.isString() && newData.val().length > 0"
+          },
           "filename": {
             ".validate": "!data.exists() && newData.isString() && newData.val().length > 0"
           },
@@ -21,9 +24,6 @@
             ".validate": "!data.exists() && newData.isNumber() && newData.val() > 0"
           },
           "contentType": {
-            ".validate": "!data.exists() && newData.isString() && newData.val().length > 0"
-          },
-          "downloadUrl": {
             ".validate": "!data.exists() && newData.isString() && newData.val().length > 0"
           },
           "inserted": {
@@ -43,13 +43,26 @@
       // individual images if they know a valid `$imgId`.
       "$imgId": {
         ".read": true,
-        ".write": "!data.exists()",
-        ".validate": "newData.hasChildren(['uid', 'inserted'])",
+        ".write": "newData.child('uid').val() === auth.uid && (!data.exists() || (data.exists() && newData.child('uid').val() === data.child('uid').val()))",
         "uid": {
           ".validate": "newData.isString() && newData.val() === auth.uid"
         },
+        "title": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "desc": {
+          ".validate": "newData.isString()"
+        },
+        "downloadUrl": {
+          ".write": "!data.exists()",
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
         "inserted": {
-            ".validate": "newData.val() <= now && newData.val() >= now - 15 * 1000"
+          ".write": "!data.exists()",
+          ".validate": "!data.exists() && newData.val() <= now && newData.val() >= now - 15 * 1000"
+        },
+        "updated": {
+          ".validate": "newData.val() <= now && newData.val() >= now - 15 * 1000"
         },
         "$other": {
           ".validate": false

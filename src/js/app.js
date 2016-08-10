@@ -424,9 +424,11 @@ var ImgPage = React.createClass({
       <section className="section">
         <div className="container">
           <article className="tile is-child box">
+            <h3 className="title is-3">{ img.title }</h3>
             <figure className="image is-4by3">
               <img src={ img.downloadUrl } />
             </figure>
+            <p>{ img.desc }</p>
           </article>
         </div>
       </section>
@@ -703,6 +705,12 @@ var EditModal = React.createClass({
     var dbRef = firebase.database().ref()
     var userRef = dbRef.child('user/' + currentUser.uid)
     var imgRef = userRef.child(edit.key)
+    var pubRef = dbRef.child('img/' + edit.key)
+
+    // console.log('imgRef:', imgRef.toString())
+    // console.log('pubRef:', pubRef.toString())
+
+    // save the `user/$uid/$key`
     var obj = {
       title   : this.state.title,
       desc    : this.state.desc,
@@ -717,6 +725,15 @@ var EditModal = React.createClass({
     }, (err) => {
       console.log('imgRef.set: err:', err)
       this.setState({ state : 'editing' })
+    })
+
+    // save the `img/$key`
+    pubRef.update({
+      title    : this.state.title,
+      desc     : this.state.desc,
+      updated  : firebase.database.ServerValue.TIMESTAMP,
+    }).catch(function(err) {
+      console.log('pubRef.set: err:', err)
     })
   },
   onChange(field, ev) {

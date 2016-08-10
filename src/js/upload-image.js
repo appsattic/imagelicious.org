@@ -95,24 +95,32 @@ function uploadImage(store, file, callback) {
         console.log('file metadata:', metadata)
 
         imgRef.set({
-          downloadUrl : uploadTask.snapshot.downloadURL,
           title       : file.name,
           desc        : '',
           tag         : '',
+          downloadUrl : uploadTask.snapshot.downloadURL,
           filename    : file.name,
           size        : metadata.size,
           contentType : metadata.contentType,
           inserted    : firebase.database.ServerValue.TIMESTAMP,
           updated     : firebase.database.ServerValue.TIMESTAMP,
-        }).catch(function(err) {
+        }).then(() => {
+          console.log('imgRef - saved')
+        }, (err) => {
           console.log('imgRef.set: err:', err)
         })
 
         pubRef.set({
           // include `uid` so we can check auth in the database (otherwise anyone could put stuff here)
-          uid      : currentUser.uid,
-          inserted : firebase.database.ServerValue.TIMESTAMP,
-        }).catch(function(err) {
+          uid         : currentUser.uid,
+          title       : file.name,
+          desc        : '',
+          downloadUrl : uploadTask.snapshot.downloadURL,
+          inserted    : firebase.database.ServerValue.TIMESTAMP,
+          updated     : firebase.database.ServerValue.TIMESTAMP,
+        }).then(() => {
+          console.log('pubRef - saved!')
+        }, (err) => {
           console.log('pubRef.set: err:', err)
         })
 
