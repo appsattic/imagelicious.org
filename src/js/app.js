@@ -247,7 +247,7 @@ var Pagination = React.createClass({
     // calculate some things related to the first/prev/next/last
     const totalPages = Math.ceil(total / perPage)
     const isFirst = pageNum === 1
-    const isLast  = pageNum === totalPages
+    const isLast  = totalPages === 0 || pageNum === totalPages
 
     const first = (
       <a
