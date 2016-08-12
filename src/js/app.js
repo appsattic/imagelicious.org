@@ -35,101 +35,6 @@ var MsgList = React.createClass({
   }
 })
 
-var Status = React.createClass({
-  propTypes: {
-    store : React.PropTypes.object.isRequired,
-  },
-  onClickUpload(ev) {
-    ev.preventDefault()
-    document.getElementById('file').click()
-  },
-  onChangeFile(ev) {
-    ev.preventDefault()
-
-    // our own store
-    var store = this.props.store
-
-    // Each 'file' would be something like:
-    //
-    // {
-    //   name             : "filename.png",
-    //   lastModified     : 1439245086000,
-    //   lastModifiedDate : new Date("2015-08-10T22:18:06.000Z"),
-    //   size             : 31564,
-    //   type             : "image/png",
-    // }
-
-    for( let i = 0; i < ev.target.files.length; i++ ) {
-      uploadImage(store, ev.target.files[i], function(err, res) {
-        if (err) {
-          store.addMsg('' + err)
-          return
-        }
-        // if everything went well, we don't need to do anything
-      })
-    }
-  },
-  onClickSort(parent, child, ev) {
-    ev.preventDefault()
-    ev.stopPropagation()
-    var store = this.props.store
-    store.setFilter(parent, child)
-  },
-  render() {
-    const store = this.props.store
-    const count = store.countImgs()
-    const filters = store.getFilters()
-
-    const page = store.getPage()
-
-    let left, right
-    if ( page === 'gallery' ) {
-      left = (
-        <div className="level-left">
-          <div className="level-item">
-            <p className="subtitle is-5">
-              <strong>{ count }</strong> image(s)
-            </p>
-          </div>
-          <p className="level-item">
-            <input type="file" id="file" name="file" onChange={ this.onChangeFile } multiple={ true } style={ { display: 'none' } }/>
-            <a className="button is-success" onClick={ this.onClickUpload }>Upload Images</a>
-          </p>
-        </div>
-      )
-      right = (
-        <div className="level-right">
-           <p className="level-item">Sort:</p>
-           {
-             Object.keys(filters.sort).map((title, i) => {
-               if ( filters.sort[title] ) {
-                 return <p key={ 'msg-' + i } className="level-item"><strong>{ title }</strong></p>
-               }
-               return <p key={ 'msg-' + i } onClick={ this.onClickSort.bind(this, 'sort', title) } className="level-item"><a>{ title }</a></p>
-             })
-           }
-        </div>
-      )
-    }
-    else {
-      left = <div className="level-left" />
-      right = <div className="level-right" />
-    }
-
-    // yes, logged in
-    return (
-      <section className="section">
-        <div className="container">
-          <nav className="level">
-            { left }
-            { right }
-          </nav>
-        </div>
-      </section>
-    )
-  }
-})
-
 var ThumbnailImage = React.createClass({
   propTypes: {
     store : React.PropTypes.object.isRequired,
@@ -303,6 +208,81 @@ var Pagination = React.createClass({
   }
 })
 
+var UploadBar = React.createClass({
+  propTypes: {
+    store : React.PropTypes.object.isRequired,
+  },
+  onClickUpload(ev) {
+    ev.preventDefault()
+    document.getElementById('file').click()
+  },
+  onChangeFile(ev) {
+    ev.preventDefault()
+
+    // our own store
+    var store = this.props.store
+
+    // Each 'file' would be something like:
+    //
+    // {
+    //   name             : "filename.png",
+    //   lastModified     : 1439245086000,
+    //   lastModifiedDate : new Date("2015-08-10T22:18:06.000Z"),
+    //   size             : 31564,
+    //   type             : "image/png",
+    // }
+
+    for( let i = 0; i < ev.target.files.length; i++ ) {
+      uploadImage(store, ev.target.files[i], function(err, res) {
+        if (err) {
+          store.addMsg('' + err)
+          return
+        }
+        // if everything went well, we don't need to do anything
+      })
+    }
+  },
+  onClickSort(parent, child, ev) {
+    ev.preventDefault()
+    ev.stopPropagation()
+    var store = this.props.store
+    store.setFilter(parent, child)
+  },
+  render() {
+    const store = this.props.store
+    const count = store.countImgs()
+    const filters = store.getFilters()
+
+    // yes, logged in
+    return (
+      <nav className="level">
+        <div className="level-left">
+          <div className="level-item">
+            <p className="subtitle is-5">
+              <strong>{ count }</strong> image(s)
+            </p>
+          </div>
+          <p className="level-item">
+            <input type="file" id="file" name="file" onChange={ this.onChangeFile } multiple={ true } style={ { display: 'none' } }/>
+            <a className="button is-success" onClick={ this.onClickUpload }>Upload Images</a>
+          </p>
+        </div>
+        <div className="level-right">
+           <p className="level-item">Sort:</p>
+           {
+             Object.keys(filters.sort).map((title, i) => {
+               if ( filters.sort[title] ) {
+                 return <p key={ 'msg-' + i } className="level-item"><strong>{ title }</strong></p>
+               }
+               return <p key={ 'msg-' + i } onClick={ this.onClickSort.bind(this, 'sort', title) } className="level-item"><a>{ title }</a></p>
+             })
+           }
+        </div>
+      </nav>
+    )
+  }
+})
+
 var GalleryPage = React.createClass({
   propTypes: {
     store : React.PropTypes.object.isRequired,
@@ -313,7 +293,13 @@ var GalleryPage = React.createClass({
 
     // if there is no user, then don't show any gallery
     if ( !user ) {
-      return <div>Please sign in.</div>
+      return (
+        <section className="section">
+          <div className="container">
+            Please sign in.
+          </div>
+        </section>
+      )
     }
 
     const args = store.getArgs()
@@ -366,6 +352,7 @@ var GalleryPage = React.createClass({
     return (
       <section className="section">
         <div className="container">
+          <UploadBar store={ store } />
           <Pagination pageNum={ pageNum } total={ imgKeys.length } perPage={ cfg.imgsPerPage } />
           <div className="columns is-multiline is-mobile">
             { columns }
@@ -813,7 +800,6 @@ var App = React.createClass({
         <TopBar store={ store } />
         <Hero store={ store } />
         <MsgList msgs={ store.getMsgs() } />
-        <Status store={ store } />
         <Page store={ store } />
         {
           store.getEdit() && <EditModal store={ store } />
