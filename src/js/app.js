@@ -415,7 +415,7 @@ var ImgPage = React.createClass({
             <figure className="image is-4by3">
               <img src={ img.downloadUrl } />
             </figure>
-            <p>{ img.desc }</p>
+            <p>{ img.desc || <em>No description.</em> }</p>
           </article>
         </div>
       </section>
