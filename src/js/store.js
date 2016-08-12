@@ -141,6 +141,9 @@ var store = {
       this.tag[tag] = true
     })
 
+    // save this to the cache
+    this.cache[key] = img
+
     // and notify of changes
     this.notify()
   },
