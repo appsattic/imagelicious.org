@@ -15,6 +15,7 @@ var store = {
   user : null,
   msgs : [],
   imgs : {},
+  tag  : {},
   filter : {
     sort : {
       'Newest First' : true,
@@ -125,10 +126,22 @@ var store = {
     return this.msgs
   },
 
-  imgChanged : function imgChanged(key, val) {
-    // save the key in the val object too
-    val.key = key
-    this.imgs[key] = val
+  imgChanged : function imgChanged(key, img) {
+    // We need to do a few things here:
+    // 1. save the key into the img object too
+    // 2. parse the tag string into a tag array
+    // 3. add those tags to our overall tag list
+
+    img.key = key
+    img.tags = slugitAll(img.tag)
+    this.imgs[key] = img
+
+    // add these tags to the overall tag map
+    img.tags.forEach((tag) => {
+      this.tag[tag] = true
+    })
+
+    // and notify of changes
     this.notify()
   },
 
@@ -139,6 +152,10 @@ var store = {
 
   getImgs : function getImgs() {
     return this.imgs
+  },
+
+  getTag : function getTag() {
+    return this.tag
   },
 
   countImgs : function countImgs() {
@@ -157,7 +174,6 @@ var store = {
     // if we have an image, store it in the cache
     if ( img && !(img instanceof Error) ) {
       // proper image (not null, not false and not an error)
-      img.tags = slugitAll(img.tag)
       this.cache[img.imgId] = img
     }
 
@@ -231,6 +247,7 @@ var store = {
     this.user = null
     this.msgs = []
     this.imgs = {}
+    this.tag = {}
     this.cache = {}
     this.filter = {
       sort : {
