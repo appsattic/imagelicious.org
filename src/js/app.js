@@ -13,6 +13,9 @@ var slugitAll = require('./slugit-all.js')
 
 // --------------------------------------------------------------------------------------------------------------------
 
+var domain = 'imagelicious.org'
+var tagLine = 'Photo Gallery, built using Firebase.'
+
 var MsgList = React.createClass({
   propTypes: {
     msgs : React.PropTypes.array.isRequired,
@@ -283,6 +286,22 @@ var UploadBar = React.createClass({
   }
 })
 
+var SimpleSection = React.createClass({
+  propTypes: {
+    text : React.PropTypes.string.isRequired,
+  },
+  render() {
+    return (
+      <section className="section">
+        <div className="container">
+          { this.props.text }
+        </div>
+      </section>
+    )
+  },
+})
+
+
 var GalleryPage = React.createClass({
   propTypes: {
     store : React.PropTypes.object.isRequired,
@@ -293,13 +312,7 @@ var GalleryPage = React.createClass({
 
     // if there is no user, then don't show any gallery
     if ( !user ) {
-      return (
-        <section className="section">
-          <div className="container">
-            Please sign in.
-          </div>
-        </section>
-      )
+      return <SimpleSection text="Please sign in." />
     }
 
     const args = store.getArgs()
@@ -396,15 +409,15 @@ var ImgPage = React.createClass({
     var img = store.getImg()
 
     if ( img === null ) {
-      return <div>Loading...</div>
+      return <SimpleSection text="Loading..." />
     }
 
     if ( img === false ) {
-      return <div>Unknown Image</div>
+      return <SimpleSection text="Unknown Image." />
     }
 
     if ( img instanceof Error ) {
-      return <div>Something went wrong when loading image : { '' + img }</div>
+      return <SimpleSection text={ 'Something went wrong when loading image : ' + img } />
     }
 
     return (
@@ -429,7 +442,7 @@ var AboutPage = React.createClass({
       <section className="section">
         <div className="container">
           <h3 className="title is-3">About Imagelicious</h3>
-          <h5 className="subtitle is-5">Photo Gallery, built using Firebase.</h5>
+          <h5 className="subtitle is-5">{ tagLine }</h5>
           <p>Some text here.</p>
         </div>
       </section>
@@ -557,7 +570,7 @@ var TopBar = React.createClass({
               <div className="nav-left">
                 <a className="nav-item is-brand" href="/#gallery/1">
                   <img src="/img/logo-48x36.png" alt="Logo" />
-                  imagelicious.org
+                  { domain }
                 </a>
                 <a className="nav-item" href="#docs">
                   Docs
@@ -607,12 +620,8 @@ var Hero = React.createClass({
       <section className="hero is-primary">
         <div className="hero-body">
           <div className="container">
-            <h1 className="title">
-              imagelicious.org
-            </h1>
-            <h2 className="subtitle">
-              Photo Gallery, on Firebase
-            </h2>
+            <h1 className="title">{ domain }</h1>
+            <h2 className="subtitle">{ tagLine }</h2>
           </div>
         </div>
       </section>
@@ -645,7 +654,7 @@ var Social = React.createClass({
           data-via="andychilton"
           data-show-count="false"
         >
-          Tweet about imagelicious.org
+          Tweet about { domain }
         </a>
       </div>
     )
@@ -776,7 +785,7 @@ var Footer = React.createClass({
         <div className="container">
           <div className="content has-text-centered">
             <p>
-              <strong>imagelicious.org</strong> by <a href="http://chilts.org/" target="_blank">Andrew Chilton</a> of <a href="http://appsattic.com/" target="_blank">AppsAttic</a>, runs on <a href="https://firebase.google.com/" target="_blank">Firebase</a>.
+              <strong>{ domain }</strong> by <a href="http://chilts.org/" target="_blank">Andrew Chilton</a> of <a href="http://appsattic.com/" target="_blank">AppsAttic</a>, runs on <a href="https://firebase.google.com/" target="_blank">Firebase</a>.
               <br />
               The source code is licensed <a href="https://opensource.org/licenses/ISC" target="_blank">ISC</a>.
             </p>
