@@ -15,12 +15,20 @@ var store = {
   user : null,
   msgs : [],
   imgs : {},
-  tag  : {},
+  valid : {
+    filter : {
+      sort : {
+        'Newest First' : true,
+        'Oldest First' : true,
+      },
+      tag : {},
+    },
+  },
   filter : {
     sort : {
       'Newest First' : true,
-      'Oldest First' : false,
     },
+    tag : {},
   },
   img  : null,
   edit : null,
@@ -138,7 +146,7 @@ var store = {
 
     // add these tags to the overall tag map
     img.tags.forEach((tag) => {
-      this.tag[tag] = true
+      this.valid.filter.tag[tag] = true
     })
 
     // save this to the cache
@@ -158,7 +166,7 @@ var store = {
   },
 
   getTag : function getTag() {
-    return this.tag
+    return this.valid.filter.tag
   },
 
   countImgs : function countImgs() {
@@ -187,32 +195,54 @@ var store = {
     return this.img
   },
 
+  getValid : function getValid(parent) {
+    if ( !(parent in this.valid.filter) ) {
+      throw new Error("store.getValid() - Unknown parent : " + parent)
+    }
+    return Object.keys(this.valid.filter[parent])
+  },
+
+  getSelected : function getSelected(parent) {
+    if ( !(parent in this.valid.filter) ) {
+      throw new Error("store.getSelected() - Unknown parent : " + parent)
+    }
+    return Object.keys(this.filter[parent])
+  },
+
   getFilters : function getFilters() {
     return this.filter
   },
 
   getFilter : function getFilter(parent, child) {
-    if ( !(parent in this.filter) ) {
+    if ( !(parent in this.valid.filter) ) {
       throw new Error("store.getFilter() - Unknown parent : " + parent)
     }
-    if ( !(child in this.filter[parent] ) ) {
+    if ( !(child in this.valid.filter[parent] ) ) {
       throw new Error("store.getFilter() - Unknown parent/child : " + parent + '/' + child)
     }
     return this.filter[parent][child]
   },
 
   setFilter : function setFilter(parent, child) {
-    if ( !(parent in this.filter) ) {
-      throw new Error("store.filter() - Unknown parent : " + parent)
+    if ( !(parent in this.valid.filter) ) {
+      throw new Error("store.setFilter() - Unknown parent : " + parent)
     }
-    if ( !(child in this.filter[parent] ) ) {
-      throw new Error("store.filter() - Unknown parent/child : " + parent + '/' + child)
+    if ( !(child in this.valid.filter[parent] ) ) {
+      throw new Error("store.setFilter() - Unknown parent/child : " + parent + '/' + child)
     }
     // reset all other children
-    Object.keys(this.filter[parent]).forEach((key) => {
-      this.filter[parent][key] = false
+    Object.keys(this.valid.filter[parent]).forEach((key) => {
+      delete this.filter[parent][key]
     })
     this.filter[parent][child] = true
+    this.notify()
+  },
+
+  clearFilter : function setFilter(parent) {
+    if ( !(parent in this.valid.filter) ) {
+      throw new Error("store.clearFilter() - Unknown parent : " + parent)
+    }
+    this.filter[parent] = {}
     this.notify()
   },
 
@@ -250,13 +280,13 @@ var store = {
     this.user = null
     this.msgs = []
     this.imgs = {}
-    this.tag = {}
     this.cache = {}
+    this.valid.filter.tag = {}
     this.filter = {
       sort : {
         'Newest First' : true,
-        'Oldest First' : false,
       },
+      tag  : {},
     }
   },
 

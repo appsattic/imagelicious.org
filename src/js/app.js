@@ -251,10 +251,25 @@ var UploadBar = React.createClass({
     var store = this.props.store
     store.setFilter(parent, child)
   },
+  onChangeFilterTag(ev) {
+    ev.preventDefault()
+    ev.stopPropagation()
+
+    var store = this.props.store
+    store.clearFilter('tag')
+
+    const val = ev.target.value
+    if ( val !== 'All' ) {
+      store.setFilter('tag', val)
+    }
+  },
   render() {
     const store = this.props.store
     const count = store.countImgs()
-    const filters = store.getFilters()
+    // const filter = store.getFilter('sort')
+    const validSorts = store.getValid('sort')      // returns an array
+    const validTags = store.getValid('tag').sort() // returns an array
+    const tagSelected = store.getSelected('tag')   // returns an array (of length 0 or 1)
 
     // yes, logged in
     return (
@@ -273,13 +288,25 @@ var UploadBar = React.createClass({
         <div className="level-right">
            <p className="level-item">Sort:</p>
            {
-             Object.keys(filters.sort).map((title, i) => {
-               if ( filters.sort[title] ) {
+             validSorts.map((title, i) => {
+               if ( store.getFilter('sort', title) ) {
                  return <p key={ 'msg-' + i } className="level-item"><strong>{ title }</strong></p>
                }
                return <p key={ 'msg-' + i } onClick={ this.onClickSort.bind(this, 'sort', title) } className="level-item"><a>{ title }</a></p>
              })
            }
+           <p className="level-item"> : </p>
+           <p className="level-item">Tag Filter:</p>
+           <p className="control">
+            <span className="select">
+              <select value={ tagSelected.length ? tagSelected[0] : '' } onChange={ this.onChangeFilterTag }>
+                <option key={ 'All' }>All</option>
+                {
+                  validTags.map((tag) => <option key={ tag }>{ tag }</option>)
+                }
+              </select>
+            </span>
+          </p>
         </div>
       </nav>
     )
@@ -300,7 +327,6 @@ var SimpleSection = React.createClass({
     )
   },
 })
-
 
 var GalleryPage = React.createClass({
   propTypes: {
@@ -331,7 +357,21 @@ var GalleryPage = React.createClass({
     let showImgs = imgKeys.map((key) => imgs[key])
 
     // 1. filter in/out any currently selected tag
-    // ToDo: ...!
+    const tagSelected = store.getSelected('tag')   // returns an array (of length 0 or 1)
+    if ( tagSelected.length ) {
+      showImgs = showImgs.filter((img) => {
+        var hasTag = false
+        img.tags.forEach((tag) => {
+          if ( tag === tagSelected[0] ) {
+            hasTag = true
+          }
+        })
+        return hasTag
+      })
+    }
+    else {
+      // no filter needs to be performed since no tag is currently selected
+    }
 
     // 2. sort by Newest/Oldest
     // get the full set of image data in an array
@@ -687,8 +727,8 @@ var EditModal = React.createClass({
 
     const { store } = this.props
     const edit = store.getEdit()
-    console.log('edit:', edit)
-    console.log('edit.key=', edit.key)
+    // console.log('edit:', edit)
+    // console.log('edit.key=', edit.key)
 
     // set the state of this modal to 'saving'
     this.setState({ state : 'saving' })
@@ -713,13 +753,12 @@ var EditModal = React.createClass({
       tag     : this.state.tag,
       updated : firebase.database.ServerValue.TIMESTAMP,
     }
-    console.log('obj:', obj)
     imgRef.update(obj).then(() => {
-      console.log('imgRef.set: saved')
+      // console.log('imgRef.set: saved')
       // this will close the modal
       store.setEdit(null)
     }, (err) => {
-      console.log('imgRef.set: err:', err)
+      // console.log('imgRef.set: err:', err)
       this.setState({ state : 'editing' })
     })
 

@@ -27,8 +27,8 @@ module.exports = {
       "always"
     ],
     "array-callback-return": 2,
-    "arrow-body-style": 2,
-    "arrow-parens": 2,
+    "arrow-body-style": [ "error", "as-needed" ],
+    "arrow-parens": [ "error", "always" ],
     "arrow-spacing": [
       2,
       {
