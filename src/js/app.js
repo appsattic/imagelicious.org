@@ -356,15 +356,15 @@ var GalleryPage = React.createClass({
     // 2. sort by Newest/Oldest
     // 3. slice depending on page number
 
-    // get all of the images into `showImgs` for filtering/sorting
+    // get all of the images into `selectedImgs` for filtering/sorting
     const imgs = store.getImgs()
     const imgKeys = Object.keys(imgs)
-    let showImgs = imgKeys.map((key) => imgs[key])
+    let selectedImgs = imgKeys.map((key) => imgs[key])
 
     // 1. filter in/out any currently selected tag
     const tagSelected = store.getSelected('tag')   // returns an array (of length 0 or 1)
     if ( tagSelected.length ) {
-      showImgs = showImgs.filter((img) => {
+      selectedImgs = selectedImgs.filter((img) => {
         var hasTag = false
         img.tags.forEach((tag) => {
           if ( tag === tagSelected[0] ) {
@@ -381,7 +381,7 @@ var GalleryPage = React.createClass({
     // 2. sort by Newest/Oldest
     // get the full set of image data in an array
     const order = filters.sort['Newest First'] ? 1 : -1
-    showImgs = showImgs.sort((a, b) => {
+    selectedImgs = selectedImgs.sort((a, b) => {
       // From: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
       if ( a.inserted < b.inserted ) return order
       if ( a.inserted > b.inserted ) return -order
@@ -391,7 +391,7 @@ var GalleryPage = React.createClass({
     // 3. slice depending on page number
     const start = (pageNum - 1) * cfg.imgsPerPage
     const end = pageNum * cfg.imgsPerPage
-    showImgs = showImgs.slice(start, end)
+    const showImgs = selectedImgs.slice(start, end)
 
     // -- Pagination --
     // From: http://bulma.io/documentation/components/pagination/
@@ -410,8 +410,8 @@ var GalleryPage = React.createClass({
     return (
       <section className="section">
         <div className="container">
-          <UploadBar store={ store } showing={ showImgs.length } />
-          <Pagination pageNum={ pageNum } total={ imgKeys.length } perPage={ cfg.imgsPerPage } />
+          <UploadBar store={ store } showing={ selectedImgs.length } />
+          <Pagination pageNum={ pageNum } total={ selectedImgs.length } perPage={ cfg.imgsPerPage } />
           <div className="columns is-multiline is-mobile">
             { columns }
           </div>
