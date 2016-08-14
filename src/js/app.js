@@ -213,7 +213,8 @@ var Pagination = React.createClass({
 
 var UploadBar = React.createClass({
   propTypes: {
-    store : React.PropTypes.object.isRequired,
+    store   : React.PropTypes.object.isRequired,
+    showing : React.PropTypes.number.isRequired,
   },
   onClickUpload(ev) {
     ev.preventDefault()
@@ -264,26 +265,30 @@ var UploadBar = React.createClass({
     }
   },
   render() {
-    const store = this.props.store
-    const count = store.countImgs()
-    // const filter = store.getFilter('sort')
-    const validSorts = store.getValid('sort')      // returns an array
-    const validTags = store.getValid('tag').sort() // returns an array
-    const tagSelected = store.getSelected('tag')   // returns an array (of length 0 or 1)
+    const { store, showing } = this.props
+
+    const count       = store.countImgs()
+    const validSorts  = store.getValid('sort')       // returns an array
+    const validTags   = store.getValid('tag').sort() // returns an array
+    const tagSelected = store.getSelected('tag')     // returns an array (of length 0 or 1)
 
     // yes, logged in
     return (
       <nav className="level">
         <div className="level-left">
-          <div className="level-item">
-            <p className="subtitle is-5">
-              <strong>{ count }</strong> image(s)
-            </p>
-          </div>
           <p className="level-item">
             <input type="file" id="file" name="file" onChange={ this.onChangeFile } multiple={ true } style={ { display: 'none' } }/>
             <a className="button is-success" onClick={ this.onClickUpload }>Upload Images</a>
           </p>
+          <div className="level-item">
+            <p className="subtitle is-5">
+              {
+                this.props.showing === count
+                  ? <span><strong>{ count }</strong> image(s) total</span>
+                  : <span>Showing <strong>{ showing }</strong> of <strong>{ count }</strong> image(s)</span>
+              }
+            </p>
+          </div>
         </div>
         <div className="level-right">
            <p className="level-item">Sort:</p>
@@ -405,7 +410,7 @@ var GalleryPage = React.createClass({
     return (
       <section className="section">
         <div className="container">
-          <UploadBar store={ store } />
+          <UploadBar store={ store } showing={ showImgs.length } />
           <Pagination pageNum={ pageNum } total={ imgKeys.length } perPage={ cfg.imgsPerPage } />
           <div className="columns is-multiline is-mobile">
             { columns }
@@ -758,7 +763,7 @@ var EditModal = React.createClass({
       // this will close the modal
       store.setEdit(null)
     }, (err) => {
-      // console.log('imgRef.set: err:', err)
+      console.log('imgRef.set: err:', err)
       this.setState({ state : 'editing' })
     })
 
