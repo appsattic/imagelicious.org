@@ -24,7 +24,6 @@ router.add('gallery/:pageNum', (pageNum) => {
   // always gives a number, even zero (for empty strings or anything else)
   pageNum |= 0 // eslint-disable-line no-bitwise
 
-
   if ( pageNum === 0 ) {
     window.location.hash = 'gallery/1'
     return

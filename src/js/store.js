@@ -50,6 +50,8 @@ var store = {
   },
 
   init : function init(page, args) {
+    // console.log('store.init(): entry', page, args)
+
     this.setPage(page)
     this.setArgs(args)
 
@@ -72,6 +74,8 @@ var store = {
     if ( page === 'img' ) {
       const imgId = args.imgId
 
+      // console.log('Trying to load ' + args.imgId)
+
       // ToDo: check to see if this `img` is already loaded up
       if ( imgId in this.cache ) {
         this.img = this.cache[imgId]
@@ -93,10 +97,23 @@ var store = {
 
       this.setImg(null)
 
+      // console.log('Loading image from Firebase ...')
+
       // get this image from the datastore
       const imgRef = firebase.database().ref().child('img').child(imgId)
       imgRef.once('value').then((data) => {
-        this.setImg(data.val())
+        var val = data.val()
+        // console.log('Got image result:', val)
+
+        // see if we found anything
+        if ( val === null ) {
+          // console.log('Unknown image ' + imgId)
+          this.setImg(false)
+          return
+        }
+
+        // console.log('Found image:', val)
+        this.setImg(val)
       }, (err) => {
         console.log('Error loading info:', err)
       })

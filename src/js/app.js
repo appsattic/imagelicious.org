@@ -458,7 +458,8 @@ var ImgPage = React.createClass({
     }
 
     if ( img === false ) {
-      return <SimpleSection text="Unknown Image." />
+      let msg = "Unknown Image : " + store.getArgs().imgId
+      return <SimpleSection text={ msg } />
     }
 
     if ( img instanceof Error ) {
