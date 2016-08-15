@@ -4,3 +4,5 @@
 /set-env-*.sh
 
 /node_modules/
+
+/storage.rules.json

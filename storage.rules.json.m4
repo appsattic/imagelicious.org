@@ -4,12 +4,12 @@
 //
 // All files are saved in
 //
-// * /img/{imageId} - where {imageId} is a `ref.push().key` from Firebase Storage
+// * /img/{imageId} - where {imageId} is a 'ref.push().key' from Firebase Storage
 //
 // --------------------------------------------------------------------------------------------------------------------
 
 service firebase.storage {
-  match /b/imagelicious-cc412.appspot.com/o {
+  match /b/__FIREBASE_STORAGE_BUCKET__/o {
     match /img/{imageId} {
       // read
       allow read;
@@ -21,7 +21,7 @@ service firebase.storage {
       // 1) A user is logged in
       // 2) File is less than 10MB
       // 3) Content type is an image
-      // 4) imageId is 20 chars (same as a database `ref.push().key`
+      // 4) imageId is 20 chars (same as a database 'ref.push().key'
       // 5) ToDo: No file currently exists here
       allow write: if request.auth != null
         && lessThanMegabytes(10)

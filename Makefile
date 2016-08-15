@@ -5,7 +5,7 @@ PATH := node_modules/.bin:${PATH}
 make-help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
-build: clean eslint public html browserify
+build: clean eslint public html firebase-config browserify
 
 eslint:
 	eslint src/js/*.js
@@ -19,6 +19,9 @@ html:
 	m4 --prefix-builtins --define=__MIN__=${MIN} --define=__GA__=${GA_TRACKING_ID} src/index.html > public/index.html
 	cp src/css/* public/css/
 	cp src/img/* public/img/
+
+firebase-config:
+	m4 --prefix-builtins --define=__FIREBASE_STORAGE_BUCKET__=${FIREBASE_STORAGE_BUCKET} storage.rules.json.m4 > storage.rules.json
 
 browserify:
 	browserify src/js/imagelicious.js --outfile public/js/imagelicious.js
@@ -36,7 +39,7 @@ deploy-hosting: build
 deploy-database:
 	firebase deploy --only database
 
-deploy-storage:
+deploy-storage: firebase-config
 	firebase deploy --only storage
 
 clean:
