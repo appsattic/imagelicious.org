@@ -9,6 +9,7 @@
     "babelify": "^7.3.0",
     "browserify": "^13.0.1",
     "browserify-shim": "^3.8.12",
+    "clean-css": "^3.4.19",
     "envify": "^3.4.1",
     "eslint": "^3.1.1",
     "eslint-plugin-react": "^5.2.2",
