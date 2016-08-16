@@ -73,14 +73,20 @@ window.addEventListener('hashchange', onHashChange, false)
 // --------------------------------------------------------------------------------------------------------------------
 // render
 
+// debounce the rendering so we wait for all updates in the same short tick
+var debounce
 function render() {
-  console.log('render(): ...')
-  ReactDOM.render(
-    <App store={ store } />,
-    document.getElementById('app')
-  )
+  // if we have already been notified in this tick, just ignore it
+  if (debounce) return
+  debounce = setTimeout(() => {
+    debounce = null
+    console.log('render(): ...')
+    ReactDOM.render(
+      <App store={ store } />,
+      document.getElementById('app')
+    )
+  }, 20)
 }
-
 store.listen(render)
 
 // on startup, update the hash and render the app
