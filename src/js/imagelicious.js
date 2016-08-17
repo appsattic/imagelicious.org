@@ -9,7 +9,7 @@ var ReactDOM = require('react-dom')
 var firebase = require('./firebase.js')
 var store = require('./store.js')
 var App = require('./app.js')
-var router = require('./router.js')
+var routes = require('./routes.js')
 
 // --------------------------------------------------------------------------------------------------------------------
 // events
@@ -54,22 +54,6 @@ firebase.auth().onAuthStateChanged(function(currentUser) {
   render()
 })
 
-// See: http://jamesknelson.com/routing-with-raw-react/
-function onHashChange() {
-  var hash = window.location.hash
-
-  // calls a function you provided OR returns a newHash (not both)
-  console.log('onHashChange() - calling router.route()')
-  var newHash = router.route(hash.substr(1))
-  if ( !newHash ) return
-
-  console.log('onHashChange() - got newHash=' + newHash)
-  window.location.hash = newHash
-}
-
-// when there is a hashChange, call our function
-window.addEventListener('hashchange', onHashChange, false)
-
 // --------------------------------------------------------------------------------------------------------------------
 // render
 
@@ -89,7 +73,7 @@ function render() {
 }
 store.listen(render)
 
-// on startup, update the hash and render the app
-onHashChange()
+// kick things off
+routes.page.start({ click : false })
 
 // --------------------------------------------------------------------------------------------------------------------

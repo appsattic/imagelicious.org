@@ -10,8 +10,20 @@ var cfg = require('./cfg.js')
 var firebase = require('./firebase.js')
 var uploadImage = require('./upload-image.js')
 var slugitAll = require('./slugit-all.js')
+var routes = require('./routes.js')
 
 // --------------------------------------------------------------------------------------------------------------------
+
+var page = routes.page
+var nav = routes.nav
+
+// function link(ev) {
+//   ev.preventDefault()
+//   ev.stopPropagation()
+//   console.log('link: entry() - ev:', ev)
+//   console.log('link: entry() - ev.target.href=' + ev.target.href)
+//   console.log('link: entry() - ev.currentTarget.pathname=' + ev.currentTarget.pathname)
+// }
 
 var domain = 'imagelicious.org'
 var tagLine = 'Photo Gallery, built using Firebase.'
@@ -89,7 +101,7 @@ var ThumbnailImage = React.createClass({
           {
             img.downloadUrl
             ? <figure className="image is-4by3">
-                <a href={ '#img/' + imgId }><img src={ img.downloadUrl } /></a>
+                <a href={ '/img/' + imgId } onClick={ nav.bind('/img/' + imgId) }><img src={ img.downloadUrl } /></a>
               </figure>
             : null
           }
@@ -102,7 +114,7 @@ var ThumbnailImage = React.createClass({
     return (
       <article className="r-thumbnail-image tile is-child box">
         <figure className="image is-4by3">
-          <a href={ '#img/' + imgId }><img src={ img.downloadUrl } /></a>
+          <a href={ '/img/' + imgId } onClick={ nav.bind('/img/' + imgId) }><img src={ img.downloadUrl } /></a>
           <p className="btns btns-tl">
             <a className="button is-primary" onClick={ this.onClickEdit.bind(this, img) }><span className="icon" style={{ marginLeft: 0 }}><i className="fa fa-pencil"></i></span></a>
           </p>
@@ -149,6 +161,12 @@ var Pagination = React.createClass({
     total   : React.PropTypes.number.isRequired,
     perPage : React.PropTypes.number.isRequired,
   },
+  onClick(pageNum, ev) {
+    console.log('pageNum:', pageNum)
+    console.log('ev:', ev)
+    ev.preventDefault()
+    page.show('/gallery/' + pageNum)
+  },
   render() {
     const { pageNum, total, perPage } = this.props
 
@@ -159,25 +177,29 @@ var Pagination = React.createClass({
 
     const first = (
       <a
-        href="#gallery/1"
+        href="/gallery/1"
+        onClick={ nav.bind('/gallery/1') }
         className={ 'button' + (isFirst ? ' is-disabled' : '') }
       >&laquo;</a>
     )
     const prev = (
       <a
-        href={ "#gallery/" + ( pageNum - 1 ) }
+        href={ "/gallery/" + ( pageNum - 1 ) }
+        onClick={ nav.bind('/gallery/' + ( pageNum - 1 )) }
         className={ 'button' + (isFirst ? ' is-disabled' : '') }
       >&lt;</a>
     )
     const next = (
       <a
-        href={ "#gallery/" + ( pageNum + 1 ) }
+        href={ "/gallery/" + ( pageNum + 1 ) }
+        onClick={ nav.bind('/gallery/' + ( pageNum + 1 )) }
         className={ 'button' + (isLast ? ' is-disabled' : '') }
       >&gt;</a>
     )
     const last = (
       <a
-        href={ "#gallery/" + totalPages }
+        href={ "/gallery/" + totalPages }
+        onClick={ nav.bind('/gallery/' + totalPages) }
         className={ 'button' + (isLast ? ' is-disabled' : '') }
       >&raquo;</a>
     )
@@ -185,7 +207,11 @@ var Pagination = React.createClass({
     const pages = []
     for(let p = 1; p <= totalPages; p++) {
       pages.push(
-        <a href={ "#gallery/" + p } className={ 'button' + (p === pageNum ? ' is-disabled' : '') }>
+        <a
+          href={ "/gallery/" + p }
+          onClick={ this.onClick.bind(this, '' + pageNum) }
+          className={ 'button' + (p === pageNum ? ' is-disabled' : '') }
+        >
           { p }
         </a>
       )
@@ -588,7 +614,7 @@ var TopBar = React.createClass({
     else if ( user === false ) {
       right = (
         <div className="nav-right nav-menu">
-          <a className="nav-item" href="#sign-in" onClick={ this.signIn }>
+          <a className="nav-item" href="/sign-in" onClick={ this.signIn }>
             Sign in using Google
           </a>
         </div>
@@ -598,10 +624,10 @@ var TopBar = React.createClass({
       // yes, we have a user
       right = (
         <div className="nav-right nav-menu">
-          <a className="nav-item" href="#settings">
+          <a className="nav-item" href="/settings">
             { user.email }
           </a>
-          <a className="nav-item" href="#sign-out" onClick={ this.signOut }>
+          <a className="nav-item" href="/sign-out" onClick={ this.signOut }>
             Sign Out
           </a>
         </div>
@@ -614,11 +640,11 @@ var TopBar = React.createClass({
           <div className="container">
             <nav className="nav">
               <div className="nav-left">
-                <a className="nav-item is-brand" href="/#gallery/1">
+                <a className="nav-item is-brand" href="/">
                   <img src="/img/logo-48x36.png" alt="Logo" />
                   { domain }
                 </a>
-                <a className="nav-item" href="#docs">
+                <a className="nav-item" href="/docs">
                   Docs
                 </a>
                 <span className="nav-item">
