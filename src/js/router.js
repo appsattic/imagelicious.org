@@ -20,6 +20,7 @@ var router = new HashiRouter({
   def : 'gallery/1',
   debug : false,
 })
+
 router.add('gallery/:pageNum', (pageNum) => {
   // always gives a number, even zero (for empty strings or anything else)
   pageNum |= 0 // eslint-disable-line no-bitwise
@@ -31,17 +32,20 @@ router.add('gallery/:pageNum', (pageNum) => {
 
   store.init('gallery', { pageNum : pageNum })
 })
+
 router.add('sign-in', () => {
   store.init('sign-in')
 })
+
 router.add('about', () => {
   store.init('about')
 })
+
 router.add('img/:imgId', (imgId) => {
   store.init('img', { imgId : imgId })
 })
+
 router.setNotFound((hash) => {
-  window.location.hash = 'app'
   store.init('not-found')
 })
 

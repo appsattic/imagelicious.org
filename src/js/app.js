@@ -51,6 +51,13 @@ var ThumbnailImage = React.createClass({
     const { store } = this.props
     store.setEdit(img)
   },
+  onClickDel(img, ev) {
+    ev.preventDefault()
+    ev.stopPropagation()
+
+    const { store } = this.props
+    store.setDel(img)
+  },
   render() {
     const { imgId, img } = this.props
 
@@ -106,9 +113,13 @@ var ThumbnailImage = React.createClass({
           <p className="btns btns-tl">
             <a className="button is-primary" onClick={ this.onClickEdit.bind(this, img) }><span className="icon" style={{ marginLeft: 0 }}><i className="fa fa-pencil"></i></span></a>
           </p>
+          {
+            /*
           <p className="btns btns-tr">
-            <a className="button is-primary"><span className="icon" style={{ marginLeft: 0 }}><i className="fa fa-trash"></i></span></a>
+            <a className="button is-primary" onClick={ this.onClickDel.bind(this, img) }><span className="icon" style={{ marginLeft: 0 }}><i className="fa fa-trash"></i></span></a>
           </p>
+            */
+          }
         </figure>
         <h5 className="title is-5">{ img.title }</h5>
         <h6 className="subtitle is-6">{ img.contentType }</h6>
@@ -701,11 +712,9 @@ var EditModal = React.createClass({
 
     const { store } = this.props
     const edit = store.getEdit()
-    // console.log('edit:', edit)
-    // console.log('edit.key=', edit.key)
 
-    // set the state of this modal to 'saving'
-    this.setState({ state : 'saving' })
+    // set the state of this modal to 'in-progress' (which is actually 'saving')
+    this.setState({ state : 'in-progress' })
 
     // firebase.auth() so we can get the currentUser
     var auth = firebase.auth()
@@ -754,7 +763,7 @@ var EditModal = React.createClass({
     this.setState(newState)
   },
   render() {
-    var saveClass = "button is-primary" + ( this.state.state === 'saving' ? ' is-disabled' : '')
+    var saveClass = "button is-primary" + ( this.state.state === 'in-progress' ? ' is-disabled' : '')
 
     return (
       <div className="modal is-active">
@@ -762,7 +771,7 @@ var EditModal = React.createClass({
         <div className="modal-card">
           <header className="modal-card-head">
             <p className="modal-card-title">Edit Image</p>
-            <button className="delete" onClick={ this.onClickCloseModal }></button>
+            <button onClick={ this.onClickCloseModal }></button>
           </header>
           <section className="modal-card-body">
             <div className="content">
@@ -780,7 +789,7 @@ var EditModal = React.createClass({
           </section>
           <footer className="modal-card-foot">
             <a className={ saveClass } onClick={ this.onClickSave }>
-              { this.state.state === 'saving' ? <span className="icon"><i className="fa fa-spinner fa-spin"></i></span> : null }
+              { this.state.state === 'in-progress' ? <span className="icon"><i className="fa fa-spinner fa-spin"></i></span> : null }
               Save
             </a>
             <a className="button" onClick={ this.onClickCloseModal }>Cancel</a>
@@ -910,6 +919,9 @@ var App = React.createClass({
         <Page store={ store } />
         {
           store.getEdit() && <EditModal store={ store } />
+        }
+        {
+          store.getDel() && <DelModal store={ store } />
         }
       </div>
     )

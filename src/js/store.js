@@ -32,6 +32,7 @@ var store = {
   },
   img  : null,
   edit : null,
+  del : null,
   cache : {},
   listeners : [],
 
@@ -270,6 +271,15 @@ var store = {
 
   getEdit : function getEdit() {
     return this.edit
+  },
+
+  setDel : function setDel(obj) {
+    this.del = obj
+    this.notify()
+  },
+
+  getDel : function getDel() {
+    return this.del
   },
 
   listen: function listen(fn) {
