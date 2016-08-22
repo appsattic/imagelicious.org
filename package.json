@@ -1,6 +1,6 @@
 {
   "name": "imagelicious.org",
-  "description": "Image hosting service, using only Firebase.",
+  "description": "An open source, simple to use personal photo gallery built on Firebase.",
   "version": "0.1.0",
   "private": true,
   "devDependencies": {

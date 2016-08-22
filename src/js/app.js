@@ -16,6 +16,24 @@ var slugitAll = require('./slugit-all.js')
 var domain = 'imagelicious.org'
 var tagLine = 'Photo Gallery, built using Firebase.'
 
+var Imagelicious = React.createClass({
+  render() {
+    return <a href="/">imagelicious.org</a>
+  },
+})
+
+var Firebase = React.createClass({
+  render() {
+    return <a href="https://firebase.google.com/" target="_blank">Firebase</a>
+  },
+})
+
+var GitHub = React.createClass({
+  render() {
+    return <a href="https://github.com/appsattic/imagelicious.org" target="_blank">Firebase</a>
+  },
+})
+
 var MsgList = React.createClass({
   propTypes: {
     msgs : React.PropTypes.array.isRequired,
@@ -493,6 +511,69 @@ var ImgPage = React.createClass({
   }
 })
 
+var HelpPage = React.createClass({
+  render() {
+    return (
+      <section className="section">
+        <div className="container content">
+          <h3 className="title is-3">imagelicious.org</h3>
+          <p>
+            <Imagelicious /> is an open source, simple to use personal photo gallery built on <Firebase />.
+          </p>
+          <p>
+            To use Imagelicious you can just sign in at the top right hand corner using your Google Account,
+            and start using it straight away. Images that you upload are private unless you share the public URL with friends or
+            family. You may change the title, description and tags on your images.
+          </p>
+          <h4 className="title is-4">Using this WebApp</h4>
+          <p>
+            In general, unless you sign in to Imagelicious, there&apos;s not much you can do on the site. If you have been given
+            an image URL to view, then you can view it independently of whether you are signed in or not. An example image link
+            is <a href="#img/-KOtJIqXSyBOZHnlIesu">https://imagelicious.org/#img/-KOtJIqXSyBOZHnlIesu</a>.
+          </p>
+          <h4 className="title is-4">Features</h4>
+          <p>
+            Imagelicious has few features, but they are powerful. Some of the highlights are:
+          </p>
+          <ul>
+            <li>Multiple parallel file uploads with progress bars</li>
+            <li>Freeform tags field, parsed into individual tags</li>
+            <li>Thumbnail generation within the browser (coming soon)</li>
+          </ul>
+          <h4 className="title is-4">Pages</h4>
+          <p>
+            There are two main pages inside Imagelicious, your <strong>Gallery</strong> page(s) and your <strong>Image</strong> pages.
+            By clicking an image in the gallery, you can see your full-size image. From here you can copy the URL to give to your
+            friends and family.
+          </p>
+          <p>
+            Inside the gallery page you&apos;ll see some pagination icons if your have more than 20 images. You can also click the 'pencil'
+            icon which appears on top of each image as you hover over it to be able to edit the title, descriptions and tags against
+            that image. There is currently no functionality on the image page when viewing your images.
+          </p>
+          <h4 className="title is-4">Sharing</h4>
+          <p>
+            You can share a link to any of your images by copying the URL from the address bar of the image you&apos;re currently looking at.
+            Your images are public by default, but due to the randomness in the image id, hard to guess. Only the people you share the URL
+            with will be able to see your images.
+          </p>
+          <h4 className="title is-4">Hosted v Self-Hosted</h4>
+          <p>
+            Imagelicious is hosted on top of Firebase, so in theory you can&apos;t host it yourself, however you can create
+            your own Firebase project and run it yourself. Imagelicious is open source so you can also clone it, change it,
+            run a new version or even run a version and charge users for it.
+          </p>
+          <p>
+            Imagelicious uses the following Firebase services : Hosting, Database, and Storage. Using Firebase may incur a cost to you, however
+            it is your responsibility to investigate and accept this. Please see the project on <GitHub /> for
+            docs on how to run Imagelicious yourself.
+          </p>
+        </div>
+      </section>
+    )
+  }
+})
+
 var AboutPage = React.createClass({
   render() {
     return (
@@ -500,7 +581,18 @@ var AboutPage = React.createClass({
         <div className="container">
           <h3 className="title is-3">About Imagelicious</h3>
           <h5 className="subtitle is-5">{ tagLine }</h5>
-          <p>Some text here.</p>
+          <p>
+            imagelicious.org is a personal image gallery that runs as a single page app (SPA) on top of Firebase.
+          </p>
+          <h4 className="title is-4">Who is it for?</h4>
+          <p>
+            It is one of three things:
+          </p>
+          <ol>
+            <li>an example of a Firebase app using various technologies (such as ReactJS, Browserify)</li>
+            <li>an app instance you can use right here on <a href="/">imagelicious.org</a></li>
+            <li>an app that you can clone from the <a href="https://github.com/appsattic/imagelicious.org">GitHub repo</a> and run yourself on top of Firebase</li>
+          </ol>
         </div>
       </section>
     )
@@ -527,6 +619,10 @@ var Page = React.createClass({
 
     if ( page === 'img' ) {
       return <ImgPage store={ store } />
+    }
+
+    if ( page === 'help' ) {
+      return <HelpPage />
     }
 
     if ( page === 'about' ) {
@@ -633,8 +729,8 @@ var TopBar = React.createClass({
                   <img src="/img/logo-48x36.png" alt="Logo" />
                   { domain }
                 </a>
-                <a className="nav-item" href="#docs">
-                  Docs
+                <a className="nav-item" href="#help">
+                  Help
                 </a>
                 <span className="nav-item">
                   <a href="https://github.com/appsattic/imagelicious.org" className="button is-primary is-inverted">

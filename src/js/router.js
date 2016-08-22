@@ -37,6 +37,10 @@ router.add('sign-in', () => {
   store.init('sign-in')
 })
 
+router.add('help', () => {
+  store.init('help')
+})
+
 router.add('about', () => {
   store.init('about')
 })
