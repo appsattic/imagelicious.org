@@ -534,7 +534,11 @@ var Page = React.createClass({
     }
 
     return (
-      <div>404 - Not Found</div>
+      <section className="section">
+        <div className="container">
+          Not found. Go to your <a href="#gallery/1">gallery page</a>.
+        </div>
+      </section>
     )
   }
 })
