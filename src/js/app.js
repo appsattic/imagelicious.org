@@ -478,6 +478,11 @@ var ImgPage = React.createClass({
   propTypes: {
     store : React.PropTypes.object.isRequired,
   },
+  onClickBack(ev) {
+    ev.preventDefault()
+    ev.stopPropagation()
+    history.back()
+  },
   render() {
     var store = this.props.store
     var img = store.getImg()
@@ -498,12 +503,17 @@ var ImgPage = React.createClass({
     return (
       <section className="section">
         <div className="container">
+          <div className="content">
+            <p><a href="#" onClick={ this.onClickBack }>&laquo; Back to Previous Page</a></p>
+          </div>
           <article className="tile is-child box">
             <h3 className="title is-3">{ img.title }</h3>
             <figure className="image is-4by3">
               <img src={ img.downloadUrl } />
             </figure>
-            <p>{ img.desc || <em>No description.</em> }</p>
+            <div className="content">
+              <p>{ img.desc || <em>No description.</em> }</p>
+            </div>
           </article>
         </div>
       </section>
