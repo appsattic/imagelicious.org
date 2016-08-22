@@ -675,38 +675,6 @@ var Hero = React.createClass({
   }
 })
 
-var Social = React.createClass({
-  render() {
-    // Twitter Share button from https://publish.twitter.com/
-    return (
-      <div id="social">
-        <iframe src="https://ghbtns.com/github-btn.html?user=appsattic&repo=imagelicious.org&type=star&count=true" frameBorder="0" scrolling="0" width="90px" height="20px"></iframe>
-        { ' ' }
-        <iframe src="https://ghbtns.com/github-btn.html?user=chilts&type=follow&count=true" frameBorder="0" scrolling="0" width="150px" height="20px"></iframe>
-        { ' ' }
-        <a
-          href="https://twitter.com/andychilton"
-          className="twitter-follow-button"
-          data-show-count="true"
-        >
-          Follow me @andychilton
-        </a>
-        { ' ' }
-        <a
-          href="https://twitter.com/share"
-          className="twitter-share-button"
-          data-text="imagelicious.org - Image hosting service, using only Firebase. Open source."
-          data-url="https://imagelicious.org/"
-          data-via="andychilton"
-          data-show-count="false"
-        >
-          Tweet about { domain }
-        </a>
-      </div>
-    )
-  },
-})
-
 var EditModal = React.createClass({
   propTypes: {
     store : React.PropTypes.object.isRequired,
@@ -823,21 +791,106 @@ var EditModal = React.createClass({
   }
 })
 
-var Footer = React.createClass({
+var DelModal = React.createClass({
+  propTypes: {
+    store : React.PropTypes.object.isRequired,
+  },
+  getInitialState() {
+    return {
+      state : 'editing',
+    }
+  },
+  onClickCloseModal(ev) {
+    ev.preventDefault()
+    ev.stopPropagation()
+
+    const { store } = this.props
+    store.setDel(null)
+  },
+  onClickDel(ev) {
+    ev.preventDefault()
+    ev.stopPropagation()
+
+    const { store } = this.props
+    const del = store.getDel()
+
+    // set the state of this modal to 'in-progress' (which is actually 'deleting')
+    this.setState({ state : 'in-progress' })
+
+    // firebase.auth() so we can get the currentUser
+    var auth = firebase.auth()
+    var currentUser = auth.currentUser
+
+    // now to delete this metadata
+    var dbRef = firebase.database().ref()
+    var userRef = dbRef.child('user/' + currentUser.uid)
+    var imgRef = userRef.child(del.key)
+    var pubRef = dbRef.child('img/' + del.key)
+
+    // console.log('imgRef:', imgRef.toString())
+    // console.log('pubRef:', pubRef.toString())
+
+    var count = 0
+
+    var p1 = imgRef.remove()
+    p1.then(() => {
+      console.log("Removal of imgRef successful")
+      count++
+      if ( count === 2 ) {
+        this.setState({ state : 'editing' })
+        store.setDel(null)
+      }
+    }).catch((err) => {
+      console.log("Removal of imgRef failed: " + err.message)
+    })
+
+    var p2 = pubRef.remove()
+    p2.then(() => {
+      console.log("Removal of pubRef successful")
+      count++
+      if ( count === 2 ) {
+        this.setState({ state : 'editing' })
+        store.setDel(null)
+      }
+    }).catch((err) => {
+      console.log("Removal of pubRef failed: " + err.message)
+    })
+
+    // ToDo: remove the object from 'storage'
+  },
   render() {
+    const { store } = this.props
+    const del = store.getDel()
+
+    var saveClass = "button is-primary" + ( this.state.state === 'in-progress' ? ' is-disabled' : '')
+
     return (
-      <footer className="footer">
-        <div className="container">
-          <div className="content has-text-centered">
-            <p>
-              <strong>{ domain }</strong> by <a href="http://chilts.org/" target="_blank">Andrew Chilton</a> of <a href="http://appsattic.com/" target="_blank">AppsAttic</a>, runs on <a href="https://firebase.google.com/" target="_blank">Firebase</a>.
-              <br />
-              The source code is licensed <a href="https://opensource.org/licenses/ISC" target="_blank">ISC</a>.
-            </p>
-            <Social />
-          </div>
+      <div className="modal is-active">
+        <div className="modal-background" onClick={ this.onClickCloseModal }></div>
+        <div className="modal-card">
+          <header className="modal-card-head">
+            <p className="modal-card-title">Delete Image</p>
+            <button onClick={ this.onClickCloseModal }></button>
+          </header>
+          <section className="modal-card-body">
+            <div className="content">
+              <label className="label">Title</label>
+              <p className="control">{ del.title }</p>
+              <label className="label">Description</label>
+              <p className="control">{ del.title }</p>
+              <label className="label">Tag String</label>
+              <p className="control">{ del.tag }</p>
+            </div>
+          </section>
+          <footer className="modal-card-foot">
+            <a className={ saveClass } onClick={ this.onClickDel }>
+              { this.state.state === 'in-progress' ? <span className="icon"><i className="fa fa-spinner fa-spin"></i></span> : null }
+              Delete
+            </a>
+            <a className="button" onClick={ this.onClickCloseModal }>Cancel</a>
+          </footer>
         </div>
-      </footer>
+      </div>
     )
   }
 })
@@ -858,7 +911,6 @@ var App = React.createClass({
         {
           store.getEdit() && <EditModal store={ store } />
         }
-        <Footer />
       </div>
     )
   }
