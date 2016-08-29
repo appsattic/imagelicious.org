@@ -28,6 +28,24 @@ service firebase.storage {
         && isImage()
         && imageId.size() == 20;
     }
+    match /thm/{imageId} {
+      // read
+      allow read;
+
+      // write
+      //
+      // Allow write files to this path, subject to the constraints:
+      //
+      // 1) A user is logged in
+      // 2) File is less than 10MB
+      // 3) Content type is an image
+      // 4) imageId is 20 chars (same as a database 'ref.push().key'
+      // 5) ToDo: No file currently exists here
+      allow write: if request.auth != null
+        && lessThanMegabytes(1)
+        && isImage()
+        && imageId.size() == 20;
+    }
   }
 }
 

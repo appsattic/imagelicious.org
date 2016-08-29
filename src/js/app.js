@@ -8,7 +8,7 @@ var React = require('react')
 // local
 var cfg = require('./cfg.js')
 var firebase = require('./firebase.js')
-var uploadImage = require('./upload-image.js')
+var db = require('./db.js')
 var slugitAll = require('./slugit-all.js')
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -112,9 +112,9 @@ var ThumbnailImage = React.createClass({
       return (
         <article className="tile is-child box">
           {
-            img.downloadUrl
+            img.thumbnailUrl
             ? <figure className="image is-4by3">
-                <a href={ '#img/' + imgId }><img src={ img.downloadUrl } /></a>
+                <a href={ '#img/' + imgId }><img src={ img.thumbnailUrl } /></a>
               </figure>
             : null
           }
@@ -127,7 +127,7 @@ var ThumbnailImage = React.createClass({
     return (
       <article className="r-thumbnail-image tile is-child box">
         <figure className="image is-4by3">
-          <a href={ '#img/' + imgId }><img src={ img.downloadUrl } /></a>
+          <a href={ '#img/' + imgId }><img src={ img.thumbnailUrl } /></a>
           <p className="btns btns-tl">
             <a className="button is-primary" onClick={ this.onClickEdit.bind(this, img) }><span className="icon" style={{ marginLeft: 0 }}><i className="fa fa-pencil"></i></span></a>
           </p>
@@ -266,7 +266,7 @@ var UploadBar = React.createClass({
     // }
 
     for( let i = 0; i < ev.target.files.length; i++ ) {
-      uploadImage(store, ev.target.files[i], function(err, res) {
+      db.uploadImage(store, ev.target.files[i], function(err, res) {
         if (err) {
           store.addMsg('' + err)
           return

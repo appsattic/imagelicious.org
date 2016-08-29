@@ -17,6 +17,9 @@
           "downloadUrl": {
             ".validate": "!data.exists() && newData.isString() && newData.val().length > 0"
           },
+          "thumbnailUrl": {
+            ".validate": "!data.exists() && newData.isString() && newData.val().length > 0"
+          },
           "filename": {
             ".validate": "!data.exists() && newData.isString() && newData.val().length > 0"
           },
