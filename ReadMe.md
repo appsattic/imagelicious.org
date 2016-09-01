@@ -88,8 +88,9 @@ Andrew Chilton ([email](andychilton@gmail.com)):
 
 AppsAttic:
 
-* [AppsAttic Website](http://appsattic.com/)
-* [appsattic](http://appsattic.com/)
+* [AppsAttic Website](https://appsattic.com/)
+* [AppsAttic on Twitter](https://twitter.com/AppsAtticLtd)
+* [AppsAttic on GitHub](https://github.com/appsattic)
 
 ## License ##
 
