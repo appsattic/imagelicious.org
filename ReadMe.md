@@ -14,6 +14,12 @@ original uploader).
 
 If you are not signed in nor have an image URL, you can't do much on the site. :)
 
+## Contributing ##
+
+If you would like to contribute to imagelicious.org's development, please read and follow the section on "Deploying a
+copy of imagelicious.org". This will help you get both a local environment working and the ability to host your own on
+Firebase.
+
 ## Deploying a copy of imagelicious.org ##
 
 ### Firebase ###
